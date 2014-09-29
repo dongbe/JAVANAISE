@@ -18,7 +18,7 @@ public class JvnObjectImpl implements JvnObject{
 	}
 	public void jvnLockRead() throws JvnException {
 		
-		state = lockState.R;
+		state = lockState.R; 
 	}
 
 	public void jvnLockWrite() throws JvnException {
