@@ -13,6 +13,8 @@ import java.awt.event.*;
 import jvn.*;
 
 import java.io.*;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 
 public class Irc {
@@ -20,6 +22,7 @@ public class Irc {
 	public TextField	data;
 	Frame 			frame;
 	JvnObject       sentence;
+	
 
 
   /**
@@ -28,7 +31,12 @@ public class Irc {
   **/
 	public static void main(String argv[]) {
 	   try {
-		   		   
+				   
+		   JvnCoordImpl jvnCoordImpl = new JvnCoordImpl();
+			Registry register= LocateRegistry.createRegistry(1099);
+			register.bind("coordinator", jvnCoordImpl);
+			System.out.println("serveur ready");
+		
 		// initialize JVN
 		JvnServerImpl js = JvnServerImpl.jvnGetServer();
 		

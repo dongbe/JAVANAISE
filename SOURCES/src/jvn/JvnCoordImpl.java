@@ -32,7 +32,7 @@ public class JvnCoordImpl
   * Default constructor
   * @throws JvnException
   **/
-	private JvnCoordImpl() throws Exception {
+	public JvnCoordImpl() throws Exception {
 		id=hashCode();
 		naming = new HashMap<String, JvnObject>();
 		locktable = new HashMap<Integer, JvnStatus>();
@@ -130,6 +130,15 @@ public class JvnCoordImpl
     public void setTable(HashMap<String, JvnObject> table) {
 			this.naming = table;
 	}
+    
+    public Map<Integer, JvnStatus> getLocktable() {
+		return locktable;
+	}
+
+	public void setLocktable(Map<Integer, JvnStatus> locktable) {
+		this.locktable = locktable;
+	}
+
 }
 
  

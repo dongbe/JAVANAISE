@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import irc.Sentence.State;
 
-public class JvnStatus {
+public class JvnStatus  implements Serializable{
 	
 	private JvnRemoteServer js;
 	private Serializable state;
