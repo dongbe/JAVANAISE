@@ -3,45 +3,56 @@ package jvn;
 import java.io.Serializable;
 
 public class JvnObjectImpl implements JvnObject{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
+	public enum lockState { NL, RC, WC, R, W, RWC;};
+	public lockState state;
+	private int id;
+	public JvnObjectImpl ()
+	{
+		id = hashCode();
+		state = lockState.NL;
+	}
 	public void jvnLockRead() throws JvnException {
-		// TODO Auto-generated method stub
+	
 		
 	}
 
 	public void jvnLockWrite() throws JvnException {
-		// TODO Auto-generated method stub
-		
+		state = lockState.W;
 	}
 
 	public void jvnUnLock() throws JvnException {
-		// TODO Auto-generated method stub
-		
+		state = lockState.NL;
 	}
 
 	public int jvnGetObjectId() throws JvnException {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		return id;
 	}
 
 	public Serializable jvnGetObjectState() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return state;
 	}
 
 	public void jvnInvalidateReader() throws JvnException {
-		// TODO Auto-generated method stub
+		state = lockState.RC;
 		
 	}
 
 	public Serializable jvnInvalidateWriter() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+
+		state = lockState.WC;
+		return state; //TODO pourquoi un return ??
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		state = lockState.RC;
+		return state;//TODO pourquoi un return ??
 	}
 
 }
