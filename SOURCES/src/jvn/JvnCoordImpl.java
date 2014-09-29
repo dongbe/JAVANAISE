@@ -8,10 +8,14 @@
 
 package jvn;
 
+import irc.Sentence.State;
+
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.Serializable;
 
 
@@ -19,14 +23,19 @@ public class JvnCoordImpl
               extends UnicastRemoteObject 
 							implements JvnRemoteCoord{
 	
-	private Registry registry;
+	private HashMap<String, JvnObject> naming;
+	private Map <Integer, JvnStatus> locktable;
+	private int id;
+	
 
  /**
   * Default constructor
   * @throws JvnException
   **/
 	private JvnCoordImpl() throws Exception {
-		registry= LocateRegistry.createRegistry(1099);
+		id=hashCode();
+		naming = new HashMap<String, JvnObject>();
+		locktable = new HashMap<Integer, JvnStatus>();
 	}
 
   /**
@@ -36,8 +45,7 @@ public class JvnCoordImpl
   **/
   public int jvnGetObjectId()
   throws java.rmi.RemoteException,jvn.JvnException {
-    // to be completed 
-    return 0;
+    return id;
   }
   
   /**
@@ -50,13 +58,10 @@ public class JvnCoordImpl
   **/
   public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
-	  try {
-		registry.bind(jon, js);
-	} catch (AlreadyBoundException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-    
+	  
+	  naming.put(jon, jo);
+	  JvnStatus jvnStatus= new JvnStatus(js, jo.jvnGetObjectState());
+	  locktable.put(jo.jvnGetObjectId(), jvnStatus);
   }
   
   /**
@@ -67,8 +72,12 @@ public class JvnCoordImpl
   **/
   public JvnObject jvnLookupObject(String jon, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
-    // to be completed 
-    return null;
+	  JvnObject jvnObject=null;
+      if(naming.containsKey(jon)){
+      	jvnObject=naming.get(jon);
+      }
+		
+		return jvnObject;
   }
   
   /**
@@ -106,6 +115,21 @@ public class JvnCoordImpl
 	 throws java.rmi.RemoteException, JvnException {
 	 // to be completed
     }
+    public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public HashMap<String, JvnObject> getTable() {
+			return naming;
+		}
+
+    public void setTable(HashMap<String, JvnObject> table) {
+			this.naming = table;
+	}
 }
 
  
