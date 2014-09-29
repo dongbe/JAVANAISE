@@ -16,12 +16,7 @@ import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import jvn.JvnObjectImpl.lockState;
 
 
 
@@ -146,9 +141,18 @@ public class JvnServerImpl
 	**/
    public Serializable jvnLockRead(int joi)
 	 throws JvnException {
-		// to be completed 
-		return null;
-
+	   JvnObject jvnObj = getObject(joi);
+		  
+		  if (jvnObj.jvnGetObjectState().equals(lockState.NL) || jvnObj.jvnGetObjectState().equals(lockState.RC)  || jvnObj.jvnGetObjectState().equals(lockState.WC) ||  jvnObj.jvnGetObjectState().equals(lockState.RWC)  )
+				jvnObj.jvnLockRead();
+			else
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					jvnObj.jvnLockRead();
+					notify();
+				}	
+		  return jvnObj;
 	}	
 	/**
 	* Get a Write lock on a JVN object 
@@ -158,9 +162,18 @@ public class JvnServerImpl
 	**/
    public Serializable jvnLockWrite(int joi)
 	 throws JvnException {
-		// to be completed 
-		return null;
-	}	
+	   JvnObject jvnObj = getObject(joi);
+		  
+		  if (jvnObj.jvnGetObjectState().equals(lockState.NL) || jvnObj.jvnGetObjectState().equals(lockState.RC)  || jvnObj.jvnGetObjectState().equals(lockState.WC) ||  jvnObj.jvnGetObjectState().equals(lockState.RWC)  )
+				jvnObj.jvnLockWrite();
+			else
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					jvnObj.jvnLockWrite();
+					notify();
+				}
+		return jvnObj;		}	
 
 	
   /**
@@ -170,10 +183,26 @@ public class JvnServerImpl
 	* @return void
 	* @throws java.rmi.RemoteException,JvnException
 	**/
+  public JvnObject getObject (int joi){
+	  
+	  return null; }
+   
   public void jvnInvalidateReader(int joi)
 	throws java.rmi.RemoteException,jvn.JvnException {
-		// to be completed 
-	};
+	  JvnObject jvnObj = getObject(joi);
+		if (jvnObj.jvnGetObjectState().equals(lockState.R))
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				jvnObj.jvnUnLock();
+				notify();
+			}
+
+} 
+	  
+
+	 
+
 	    
 	/**
 	* Invalidate the Write lock of the JVN object identified by id 
@@ -183,9 +212,16 @@ public class JvnServerImpl
 	**/
   public Serializable jvnInvalidateWriter(int joi)
 	throws java.rmi.RemoteException,jvn.JvnException { 
-		// to be completed 
-		return null;
-	};
+	  JvnObject jvnObj = getObject(joi);
+			if (jvnObj.jvnGetObjectState().equals(lockState.W))
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					jvnObj.jvnUnLock();
+					notify();
+				}
+		return jvnObj;
+	}
 	
 	/**
 	* Reduce the Write lock of the JVN object identified by id 
@@ -195,8 +231,16 @@ public class JvnServerImpl
 	**/
    public Serializable jvnInvalidateWriterForReader(int joi)
 	 throws java.rmi.RemoteException,jvn.JvnException { 
-		// to be completed 
-		return null;
+	
+	   JvnObject jvnObj = getObject(joi);
+		if (jvnObj.jvnGetObjectState().equals(lockState.W))
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				jvnObj.jvnLockRead();
+				notify();
+			}
+	return jvnObj;
 	 };
 
 }
