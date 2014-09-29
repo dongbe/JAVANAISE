@@ -14,8 +14,6 @@ import jvn.*;
 
 import java.io.*;
 
-import org.apache.velocity.app.VelocityEngine;
-
 
 public class Irc {
 	public TextArea		text;
