@@ -1,0 +1,16 @@
+package jvnGenerated;
+public class Jvn$className {
+...
+#foreach ($meth in $methods)
+#if ($util.isNotNull($ret))
+...
+#set ($needWriteLock =
+($methodName.indexOf("W_") == 0))
+#if ($needWriteLock)
+obj.jvnLockWrite();
+#elseif ($needReadLock)
+obj.jvnLockRead();
+#end
+...
+#end
+}
