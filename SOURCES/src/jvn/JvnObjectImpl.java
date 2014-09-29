@@ -3,9 +3,10 @@ package jvn;
 import java.io.Serializable;
 
 public class JvnObjectImpl implements JvnObject{
-
+	public enum lockState { NL, RC, WC, R, W, RWC;};
+	
 	public void jvnLockRead() throws JvnException {
-		// TODO Auto-generated method stub
+	
 		
 	}
 
