@@ -8,6 +8,7 @@
 
 package jvn;
 
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -24,7 +25,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	// A JVN server is managed as a singleton
 	private static JvnServerImpl js = null;
 
-	private JvnCoordImpl jvnCoordImpl;
+	private JvnRemoteCoord jvnCoordImpl;
 
 	/**
 	 * Default constructor
@@ -33,8 +34,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	private JvnServerImpl() throws Exception {
 		super();
-		Registry register = LocateRegistry.getRegistry("/localhost/irc/");
-		jvnCoordImpl = (JvnCoordImpl) register.lookup("coordinator");
+		jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
+		System.out.println("serveur ready :"+jvnCoordImpl);
 	}
 
 	/**
@@ -75,10 +76,10 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		InvocationHandler invocationHandler = new JvnInvocationHandler(o);
 		ClassLoader loader = o.getClass().getClassLoader();
 		Class<?>[] m = o.getClass().getInterfaces();
-		JvnObject proxy = (JvnObject) Proxy.newProxyInstance(loader, m,
-				invocationHandler);
-
-		return proxy;
+		System.out.println("ici");
+		Object proxy = Proxy.newProxyInstance(loader, m, invocationHandler);
+        
+		return (JvnObject) proxy;
 
 	}
 
@@ -94,9 +95,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	public void jvnRegisterObject(String jon, JvnObject jo)
 			throws jvn.JvnException {
 		try {
-			jvnCoordImpl.jvnRegisterObject(jon, jo, this);
+			jvnCoordImpl.jvnRegisterObject(jon, jo, (JvnRemoteServer) js);
 		} catch (RemoteException e) {
-			System.out.println("erreur lors de l'appel de la methode register");
+			System.out.println("erreur lors de l'appel de la methode register"+e.getMessage());
 		}
 	}
 
@@ -244,7 +245,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		return jvnObj;
 	};
 
-	public JvnCoordImpl getJvnCoordImpl() {
+	public JvnRemoteCoord getJvnCoordImpl() {
 		return jvnCoordImpl;
 	}
 

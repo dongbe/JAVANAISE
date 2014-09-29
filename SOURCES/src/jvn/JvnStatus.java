@@ -2,7 +2,6 @@ package jvn;
 
 import java.io.Serializable;
 
-import irc.Sentence.State;
 
 public class JvnStatus  implements Serializable{
 	

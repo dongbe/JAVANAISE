@@ -11,8 +11,9 @@ public class JvnObjectImpl implements JvnObject{
 	public enum lockState { NL, RC, WC, R, W, RWC;};
 	public lockState state;
 	private int id;
+	
 	public JvnObjectImpl ()
-	{
+	{   
 		id = hashCode();
 		state = lockState.NL;
 	}
@@ -36,7 +37,7 @@ public class JvnObjectImpl implements JvnObject{
 
 	public Serializable jvnGetObjectState() throws JvnException {
 		
-		return state;
+		return this;
 	}
 
 	public void jvnInvalidateReader() throws JvnException {

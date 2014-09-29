@@ -8,11 +8,6 @@
 
 package jvn;
 
-import irc.Sentence.State;
-
-import java.rmi.AlreadyBoundException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +29,10 @@ public class JvnCoordImpl
   **/
 	public JvnCoordImpl() throws Exception {
 		id=hashCode();
+		
 		naming = new HashMap<String, JvnObject>();
 		locktable = new HashMap<Integer, JvnStatus>();
+		System.out.println("id :"+id);
 	}
 
   /**
@@ -58,10 +55,10 @@ public class JvnCoordImpl
   **/
   public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
-	  
+	  /*System.out.println("yakoi");
 	  naming.put(jon, jo);
 	  JvnStatus jvnStatus= new JvnStatus(js, jo.jvnGetObjectState());
-	  locktable.put(jo.jvnGetObjectId(), jvnStatus);
+	  locktable.put(jo.jvnGetObjectId(), jvnStatus);*/
   }
   
   /**

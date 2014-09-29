@@ -13,6 +13,7 @@ import java.awt.event.*;
 import jvn.*;
 
 import java.io.*;
+import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -33,20 +34,21 @@ public class Irc {
 	   try {
 				   
 		   JvnCoordImpl jvnCoordImpl = new JvnCoordImpl();
-			Registry register= LocateRegistry.createRegistry(1099);
-			register.bind("coordinator", jvnCoordImpl);
-			System.out.println("serveur ready");
+			LocateRegistry.createRegistry(1099);
+			String url="rmi://localhost:1099/Coordinator";
+			Naming.rebind(url, jvnCoordImpl);
+			System.out.println("Coordinator ready");
 		
 		// initialize JVN
 		JvnServerImpl js = JvnServerImpl.jvnGetServer();
-		
+		//Sentence s = new Sentence();
 		
 		// look up the IRC object in the JVN server
 		// if not found, create it, and register it in the JVN server
 		JvnObject jo = js.jvnLookupObject("IRC");
 		   
 		if (jo == null) {
-			jo = js.jvnCreateObject(new Sentence());
+			jo = js.jvnCreateObject((Serializable)new Sentence());
 			// after creation, I have a write lock on the object
 			jo.jvnUnLock();
 			js.jvnRegisterObject("IRC", jo);

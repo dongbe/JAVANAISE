@@ -1,9 +1,10 @@
 package jvn;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class JvnInvocationHandler implements InvocationHandler {
+public class JvnInvocationHandler implements InvocationHandler , Serializable{
 
 	private Object obj;
 	public JvnInvocationHandler(Object obj){
