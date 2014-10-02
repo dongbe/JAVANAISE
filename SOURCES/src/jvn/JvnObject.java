@@ -47,11 +47,17 @@ public interface JvnObject extends Serializable {
 	throws jvn.JvnException; 
 	
 	/**
-	* Get the object state
+	* Get the object
 	* @throws JvnException
 	**/
 	public Serializable jvnGetObjectState()
 	throws jvn.JvnException; 
+	
+	/**
+	* Get the state
+	* @throws JvnException
+	**/
+	public Serializable jvnGetState() throws JvnException ;
 	
 	
 	/**

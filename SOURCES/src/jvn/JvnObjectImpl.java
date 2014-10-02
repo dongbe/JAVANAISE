@@ -2,32 +2,67 @@ package jvn;
 
 import java.io.Serializable;
 
+import jvn.JvnCoordImpl.LockState;
+
 public class JvnObjectImpl implements JvnObject{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public enum lockState { NL, RC, WC, R, W, RWC;};
-	public lockState state;
+	public LockState state;
 	private int id;
+	private JvnServerImpl js=null;
 	
 	public JvnObjectImpl ()
 	{   
+		//creation de l'objet en mode unlock 
 		id = hashCode();
-		state = lockState.NL;
-	}
-	public void jvnLockRead() throws JvnException {
+		state = LockState.NL;
 		
-		state = lockState.R; 
+	}
+	
+	public void jvnLockRead() throws JvnException {
+		/*
+		 *  si l'objet a toujours le verrou ou le verrou en etat cached reutilisation
+		 *  sinon demande de verrou au serveur
+		 */
+		if(js==null){
+		js= JvnServerImpl.jvnGetServer();
+		}
+		if(state.equals(LockState.RC) || state.equals(LockState.R)){
+			state=LockState.R;
+		}else{
+			state=(LockState) js.jvnLockRead(jvnGetObjectId());
+		}	 
 	}
 
 	public void jvnLockWrite() throws JvnException {
-		state = lockState.W;
+		/*
+		 *  si l'objet a toujours le verrou ou le verrou en etat cached reutilisation
+		 *  sinon demande de verrou au serveur
+		 */
+		if(js==null){
+			js= JvnServerImpl.jvnGetServer();
+			}
+		if(state.equals(LockState.WC) || state.equals(LockState.W)){
+			state=LockState.W;
+		}else{
+			state=(LockState) js.jvnLockWrite(jvnGetObjectId());
+		}	 
 	}
 
 	public void jvnUnLock() throws JvnException {
-		state = lockState.NL;
+		/*
+		 * les verrous write et read sont en etat de cache 
+		 * les communications avec le serveur ne sont pas necessaires
+		 */
+		
+		if(state.equals(LockState.R)){
+			state= LockState.RC;
+		}else if(state.equals(LockState.W)){
+			state= LockState.WC;
+		}
 	}
 
 	public int jvnGetObjectId() throws JvnException {
@@ -39,20 +74,24 @@ public class JvnObjectImpl implements JvnObject{
 		
 		return this;
 	}
+	public Serializable jvnGetState() throws JvnException {
+		
+		return state;
+	}
 
 	public void jvnInvalidateReader() throws JvnException {
-		state = lockState.RC;
+		state = LockState.RC;
 		
 	}
 
 	public Serializable jvnInvalidateWriter() throws JvnException {
 
-		state = lockState.WC;
+		state = LockState.WC;
 		return state; //TODO pourquoi un return ??
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
-		state = lockState.RC;
+		state = LockState.RC;
 		return state;//TODO pourquoi un return ??
 	}
 

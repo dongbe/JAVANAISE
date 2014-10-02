@@ -13,6 +13,7 @@ import java.io.Serializable;
 
 import jvn.JvnObject;
 import jvn.JvnObjectImpl;
+import jvn.JvnServerImpl;
 
 public class Sentence  
 			 extends JvnObjectImpl 
