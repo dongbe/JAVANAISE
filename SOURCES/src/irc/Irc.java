@@ -43,8 +43,9 @@ public class Irc {
 		
 		// look up the IRC object in the JVN server
 		// if not found, create it, and register it in the JVN server
+		
 		JvnObject jo = js.jvnLookupObject("IRC");
-		   
+		
 		if (jo == null) {
 			jo = js.jvnCreateObject((Serializable)new Sentence());
 			// after creation, I have a write lock on the object
@@ -107,7 +108,7 @@ public class Irc {
 	 try {
 		// lock the object in read mode
 		irc.sentence.jvnLockRead();
-		
+		System.out.println("Object en mode lecture normalement: "+irc.sentence.jvnGetState());
 		// invoke the method
 		String s = ((Sentence)(irc.sentence.jvnGetObjectState())).read();
 		
@@ -140,7 +141,7 @@ public class Irc {
 	   try {	
 		// get the value to be written from the buffer
     String s = irc.data.getText();
-        	
+    System.out.println("Object en mode ecriture normalement: "+irc.sentence.jvnGetState());
     // lock the object in write mode
 		irc.sentence.jvnLockWrite();
 		

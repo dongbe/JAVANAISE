@@ -33,7 +33,10 @@ public class JvnObjectImpl implements JvnObject{
 		}
 		if(state.equals(LockState.RC) || state.equals(LockState.R)){
 			state=LockState.R;
-		}else{
+		} else if(state.equals(LockState.RWC)){
+			
+		}
+		else{
 			state=(LockState) js.jvnLockRead(jvnGetObjectId());
 		}	 
 	}
@@ -53,7 +56,7 @@ public class JvnObjectImpl implements JvnObject{
 		}	 
 	}
 
-	public void jvnUnLock() throws JvnException {
+	public synchronized void jvnUnLock() throws JvnException {
 		/*
 		 * les verrous write et read sont en etat de cache 
 		 * les communications avec le serveur ne sont pas necessaires
@@ -64,6 +67,7 @@ public class JvnObjectImpl implements JvnObject{
 		}else if(state.equals(LockState.W)){
 			state= LockState.WC;
 		}
+		notifyAll();
 	}
 
 	public int jvnGetObjectId() throws JvnException {
@@ -81,8 +85,7 @@ public class JvnObjectImpl implements JvnObject{
 	}
 
 	public void jvnInvalidateReader() throws JvnException {
-		state = LockState.RC;
-		
+		state = LockState.NL;		
 	}
 
 	public Serializable jvnInvalidateWriter() throws JvnException {

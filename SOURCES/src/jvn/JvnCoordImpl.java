@@ -13,12 +13,13 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.io.Serializable;
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 
 	private HashMap<String, JvnObject> naming;
-	private HashMap<JvnCodeOS, LockState> locktable;
+	private HashMap<JvnCodeOS, JvnStatus> locktable;
 
 	public enum LockState {
 		NL, RC, WC, R, W, RWC;
@@ -35,7 +36,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		id = hashCode();
 
 		naming = new HashMap<String, JvnObject>();
-		locktable = new HashMap<JvnCodeOS, LockState>();
+		locktable = new HashMap<JvnCodeOS, JvnStatus>();
 		System.out.println("id :" + id);
 	}
 
@@ -70,7 +71,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		naming.put(jon, jo);
 		JvnCodeOS code = new JvnCodeOS(jo.jvnGetObjectId(), js);
-		locktable.put(code, LockState.NL);
+		JvnStatus status = new JvnStatus(jon, LockState.NL);
+		locktable.put(code,status);
 	}
 
 	/**
@@ -108,15 +110,15 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			throws java.rmi.RemoteException, JvnException {
 		
 		JvnCodeOS code = new JvnCodeOS(joi, js);
-		System.out.println("table des avant etats : "+locktable.get(code));
-		if(locktable.get(code).equals(LockState.W)){
-			locktable.put(code, LockState.RWC);
+		System.out.println("table des avant etats : "+locktable.get(code).getJon());
+		if(locktable.get(code).getState().equals(LockState.W) || locktable.get(code).getState().equals(LockState.WC)){
+			js.jvnInvalidateWriterForReader(joi);
 		}else{
-			locktable.put(code, LockState.R);
+			locktable.get(code).setState(LockState.R);
 		}
 		
-		System.out.println("table des apres etats : "+locktable.get(code));
-		return locktable.get(code);
+		System.out.println("table des apres etats : "+locktable.get(code).getState());
+		return locktable.get(code).getState();
 	}
 
 	/**
@@ -134,10 +136,41 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			throws java.rmi.RemoteException, JvnException {
 		
 		JvnCodeOS code = new JvnCodeOS(joi, js);
-		System.out.println("table des apres etats : "+locktable.get(code));
-		locktable.put(code, LockState.W);
-		System.out.println("table des apres etats : "+locktable.get(code));
-		return locktable.get(code);
+		System.out.println("table des avant etats : "+locktable.get(code).getJon());
+		for( Entry<JvnCodeOS,JvnStatus> ent : locktable.entrySet() ){
+			int obj=ent.getKey().getJoi();
+			JvnRemoteServer server=ent.getKey().getJs();
+			/*
+			 * si l'objet est detenu par tous les serveurs en lecture
+			 * on accorde le verrou en ecriture et on invalide les verrous en lecture
+			 */
+			if(joi==obj && ent.getValue().getState().equals(LockState.R) || ent.getValue().getState().equals(LockState.RC)){
+				server.jvnInvalidateReader(joi);
+				locktable.get(code).setState(LockState.W);
+			}
+			/*
+			 * si l'objet est detenu par un serveur en ecriture 
+			 * on attend qu'il libere le verrou
+			 */
+			if(joi==obj && ent.getValue().getState().equals(LockState.W)){
+				JvnObject test =jvnLookupObject(ent.getValue().getJon(),js);
+				try {
+					test.wait();
+				} catch (InterruptedException e) {
+					System.out.println("coord write :"+e.getMessage());
+				}
+			}
+			/*
+			 * si l'objet est detenu par un serveur en ecriture cache ou inutilise
+			 * on invalide le verrou et on l'attribue
+			 */
+			if(joi==obj && ent.getValue().getState().equals(LockState.WC) || ent.getValue().getState().equals(LockState.RWC)){
+				server.jvnInvalidateWriter(joi);
+			}
+		}
+		
+		System.out.println("table des apres etats : "+locktable.get(code).getState());
+		return locktable.get(code).getState();
 	}
 
 	/**
@@ -174,11 +207,11 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		this.naming = table;
 	}
 
-	public HashMap<JvnCodeOS, LockState> getLocktable() {
+	public HashMap<JvnCodeOS, JvnStatus> getLocktable() {
 		return locktable;
 	}
 
-	public void setLocktable(HashMap<JvnCodeOS, LockState> locktable) {
+	public void setLocktable(HashMap<JvnCodeOS, JvnStatus> locktable) {
 		this.locktable = locktable;
 	}
 	
