@@ -13,6 +13,7 @@ public class JvnObjectImpl implements JvnObject{
 	public LockState state;
 	private int id;
 	private JvnServerImpl js=null;
+	private JvnObject objet;
 	
 	public JvnObjectImpl ()
 	{   
@@ -76,7 +77,7 @@ public class JvnObjectImpl implements JvnObject{
 
 	public Serializable jvnGetObjectState() throws JvnException {
 		
-		return this;
+		return objet;
 	}
 	public Serializable jvnGetState() throws JvnException {
 		
@@ -90,12 +91,12 @@ public class JvnObjectImpl implements JvnObject{
 	public Serializable jvnInvalidateWriter() throws JvnException {
 
 		state = LockState.WC;
-		return state; //TODO pourquoi un return ??
+		return this; //TODO pourquoi un return ??
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
 		state = LockState.RC;
-		return state;//TODO pourquoi un return ??
+		return this;//TODO pourquoi un return ??
 	}
 
 }

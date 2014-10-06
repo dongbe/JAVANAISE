@@ -162,21 +162,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public Serializable jvnLockWrite(int joi) throws JvnException {
-		/*JvnObject jvnObj = getObject(joi);
-
-		if (jvnObj.jvnGetObjectState().equals(lockState.NL)
-				|| jvnObj.jvnGetObjectState().equals(lockState.RC)
-				|| jvnObj.jvnGetObjectState().equals(lockState.WC)
-				|| jvnObj.jvnGetObjectState().equals(lockState.RWC))
-			jvnObj.jvnLockWrite();
-		else
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				jvnObj.jvnLockWrite();
-				notify();
-			}
-		return jvnObj;*/
+		
 		LockState state=null;
 		try {
 			state = (LockState) jvnCoordImpl.jvnLockWrite(joi, js);
@@ -211,14 +197,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException,
 			jvn.JvnException {
 		JvnObject jvnObj = getObject(joi);
-		//if (jvnObj.jvnGetObjectState().equals(LockState.R))
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				jvnObj.jvnInvalidateReader();
-				notify();
-			}
-
+		jvnObj.jvnInvalidateReader();
 	}
 
 	/**
@@ -233,13 +212,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	public Serializable jvnInvalidateWriter(int joi)
 			throws java.rmi.RemoteException, jvn.JvnException {
 		JvnObject jvnObj = getObject(joi);
-		if (jvnObj.jvnGetObjectState().equals(LockState.W))
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				jvnObj.jvnUnLock();
-				notify();
-			}
+		jvnObj=(JvnObject) jvnObj.jvnInvalidateWriter();
 		return jvnObj;
 	}
 
