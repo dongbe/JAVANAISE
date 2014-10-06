@@ -33,8 +33,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	private JvnServerImpl() throws Exception {
-		super();
+		System.out.println("toto 2");
 		jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
+		System.out.println("toto 3"+jvnCoordImpl);
 		System.out.println("serveur ready :"+jvnCoordImpl);
 	}
 
@@ -197,17 +198,24 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	public JvnObject getObject(int joi) {
 
-		return null;//jvnCoordImpl.getLocktable().get(joi);
+		String obj=((JvnCoordImpl) jvnCoordImpl).getLocktable().get(new JvnCodeOS(joi, (JvnRemoteServer)this)).getJon();
+		JvnObject object = null;
+		try {
+			object = jvnLookupObject(obj);
+		} catch (JvnException e) {
+			System.out.println("get object erreur"+e.getMessage());
+		}
+		return object;
 	}
 
 	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException,
 			jvn.JvnException {
 		JvnObject jvnObj = getObject(joi);
-		if (jvnObj.jvnGetObjectState().equals(LockState.R))
+		//if (jvnObj.jvnGetObjectState().equals(LockState.R))
 			try {
 				wait();
 			} catch (InterruptedException e) {
-				jvnObj.jvnUnLock();
+				jvnObj.jvnInvalidateReader();
 				notify();
 			}
 
@@ -247,15 +255,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	public Serializable jvnInvalidateWriterForReader(int joi)
 			throws java.rmi.RemoteException, jvn.JvnException {
 
-		JvnObject jvnObj = getObject(joi);
-		if (jvnObj.jvnGetObjectState().equals(LockState.W))
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				jvnObj.jvnLockRead();
-				notify();
-			}
-		return jvnObj;
+		
+		return null;
 	};
 
 	public JvnRemoteCoord getJvnCoordImpl() {

@@ -2,30 +2,32 @@ package jvn;
 
 import java.io.Serializable;
 
+import jvn.JvnCoordImpl.LockState;
+
 
 public class JvnStatus  implements Serializable{
 	
-	private JvnRemoteServer js;
-	private Serializable state;
+	private String jon;
+	private LockState state;
 	
-	public JvnRemoteServer getJs() {
-		return js;
+	public String getJon() {
+		return jon;
 	}
 
-	public void setJs(JvnRemoteServer js) {
-		this.js = js;
+	public void setJon(String jon) {
+		this.jon = jon;
 	}
 
-	public Serializable getState() {
+	public LockState getState() {
 		return state;
 	}
 
-	public void setState(Serializable state) {
+	public void setState(LockState state) {
 		this.state = state;
 	}
 
-	public JvnStatus(JvnRemoteServer js, Serializable st){
-		this.js=js;
+	public JvnStatus(String js, LockState st){
+		this.jon=js;
 		this.state=st;
 	}
 
