@@ -14,11 +14,12 @@ import java.io.Serializable;
 import jvn.JvnCoordImpl.LockState;
 import jvn.JvnObject;
 import jvn.JvnObjectImpl;
+import jvn.JvnSentenceItf;
 
 
 public class Sentence  
 			 extends JvnObjectImpl 
-			         implements  Serializable, JvnObject{
+			         implements  JvnSentenceItf,Serializable, JvnObject{
 	/**
 	 * 
 	 */

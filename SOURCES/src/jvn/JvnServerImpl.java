@@ -8,6 +8,8 @@
 
 package jvn;
 
+import irc.Sentence;
+
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -35,7 +37,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	private JvnServerImpl() throws Exception {
 		System.out.println("toto 2");
 		jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
-		System.out.println("toto 3"+jvnCoordImpl);
 		System.out.println("serveur ready :"+jvnCoordImpl);
 	}
 
@@ -73,10 +74,10 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException {
-		
+		Sentence test = (Sentence)o;
 		InvocationHandler invocationHandler = new JvnInvocationHandler(o);
-		ClassLoader loader = o.getClass().getClassLoader();
-		Class<?>[] m = o.getClass().getInterfaces();
+		ClassLoader loader = test.getClass().getClassLoader();
+		Class<?>[] m = test.getClass().getInterfaces();
 		System.out.println("ici");
 		Object proxy = Proxy.newProxyInstance(loader, m, invocationHandler);
         
@@ -113,7 +114,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	public JvnObject jvnLookupObject(String jon) throws jvn.JvnException {
 		JvnObject jvnObject = null;
 		try {
-			jvnCoordImpl.jvnLookupObject(jon, this);
+			jvnObject=jvnCoordImpl.jvnLookupObject(jon, this);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -154,10 +155,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		try {
 			System.out.println("ici objet"+state);
 			state = (JvnObject) jvnCoordImpl.jvnLockWrite(joi, js);
-			System.out.println("ici objet"+state);
+			
 		} catch (RemoteException e) {
 			System.out.println("erreur au niveau du lock write serveur : "+e.getMessage());
 		}
+		System.out.println("ici objet 2 :"+state);
 		return state;
 	}
 

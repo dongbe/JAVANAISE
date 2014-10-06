@@ -15,15 +15,15 @@ public class JvnObjectImpl implements JvnObject{
 	public LockState state;
 	private int id;
 	private JvnServerImpl js=null;
-	private Sentence objet=null;
+	private Object objet=null;
 	
 	
-	public Sentence getObjet() {
+	public Object getObjet() {
 		return objet;
 	}
 
-	public void setObjet(Sentence objet) {
-		this.objet = objet;
+	public void setObjet(Object serializable) {
+		this.objet = serializable;
 	}
 
 	public JvnObjectImpl ()
@@ -49,28 +49,28 @@ public class JvnObjectImpl implements JvnObject{
 			
 		}
 		else{
-			Sentence test = (Sentence) js.jvnLockRead(jvnGetObjectId());
-			this.objet= test.getObjet();
 			
+			setObjet(js.jvnLockRead(jvnGetObjectId()));
+			System.out.println("object 4:"+objet);
 		}	 
 	}
 
-	public void jvnLockWrite() throws JvnException {
+	public synchronized void jvnLockWrite() throws JvnException {
 		/*
 		 *  si l'objet a toujours le verrou ou le verrou en etat cached reutilisation
 		 *  sinon demande de verrou au serveur
 		 */
 		if(js==null){
 			js= JvnServerImpl.jvnGetServer();
+			System.out.println("ici objet: js -> "+js);
 			}
 		if(state.equals(LockState.WC) || state.equals(LockState.W)){
 			state=LockState.W;
 		}else{
-			
+							
+			setObjet(js.jvnLockWrite(jvnGetObjectId()));
 			System.out.println("ici objet: begin -> "+objet);
-			Sentence test = (Sentence) js.jvnLockWrite(jvnGetObjectId());
-			this.objet= test.getObjet();
-			System.out.println("ici objet"+ test.getObjet());
+			
 		}	 
 	}
 
@@ -80,12 +80,12 @@ public class JvnObjectImpl implements JvnObject{
 		 * les communications avec le serveur ne sont pas necessaires
 		 */
 		
-		if(state.equals(LockState.R)){
+		/*if(state.equals(LockState.R)){
 			state= LockState.RC;
 		}else if(state.equals(LockState.W)){
 			state= LockState.WC;
 		}
-		notifyAll();
+		notifyAll();*/
 	}
 
 	public int jvnGetObjectId() throws JvnException {
@@ -93,11 +93,9 @@ public class JvnObjectImpl implements JvnObject{
 		return id;
 	}
 
-	public Serializable jvnGetObjectState() throws JvnException {
-		System.out.println("ici objet: begin -> "+objet);
+	public synchronized Serializable jvnGetObjectState() throws JvnException {
 		
-		this.objet= (Sentence) js.jvnLockWrite(jvnGetObjectId());
-		return objet;
+		return (Serializable) objet;
 	}
 	public Serializable jvnGetState() throws JvnException {
 		
@@ -111,12 +109,12 @@ public class JvnObjectImpl implements JvnObject{
 	public Serializable jvnInvalidateWriter() throws JvnException {
 
 		state = LockState.WC;
-		return objet;
+		return (Serializable) objet;
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
 		state = LockState.RC;
-		return objet;
+		return (Serializable) objet;
 	}
 
 }

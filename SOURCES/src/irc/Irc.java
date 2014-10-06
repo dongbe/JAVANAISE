@@ -43,7 +43,7 @@ public class Irc {
 		
 		// look up the IRC object in the JVN server
 		// if not found, create it, and register it in the JVN server
-		
+		System.out.println(" jo : ");
 		JvnObject jo = js.jvnLookupObject("IRC");
 		
 		if (jo == null) {
@@ -52,7 +52,9 @@ public class Irc {
 			jo.jvnUnLock();
 			js.jvnRegisterObject("IRC", jo);
 			
+			
 		}
+		System.out.println(" jo : "+jo.jvnGetObjectId());
 		// create the graphical part of the Chat application
 		 new Irc(jo);
 		// create the graphical part of the Chat application
@@ -110,7 +112,7 @@ public class Irc {
 		irc.sentence.jvnLockRead();
 		System.out.println("Object en mode lecture normalement: "+irc.sentence.jvnGetState());
 		// invoke the method
-		String s = ((Sentence)(irc.sentence.jvnGetObjectState())).read();
+		String s = ((JvnSentenceItf)(irc.sentence.jvnGetObjectState())).read();
 		
 		// unlock the object
 		irc.sentence.jvnUnLock();
@@ -146,7 +148,9 @@ public class Irc {
 		irc.sentence.jvnLockWrite();
 		 
 		// invoke the method
-		((Sentence)(irc.sentence.jvnGetObjectState())).write(s);
+		
+		((JvnSentenceItf) irc.sentence.jvnGetObjectState()).write(s);
+		
 		
 		// unlock the object
 		irc.sentence.jvnUnLock();
