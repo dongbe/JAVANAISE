@@ -1,5 +1,7 @@
 package jvn;
 
+import irc.Sentence;
+
 import java.io.Serializable;
 
 import jvn.JvnCoordImpl.LockState;
@@ -13,9 +15,17 @@ public class JvnObjectImpl implements JvnObject{
 	public LockState state;
 	private int id;
 	private JvnServerImpl js=null;
-	private Serializable objet;
+	private Sentence objet=null;
 	
 	
+	public Sentence getObjet() {
+		return objet;
+	}
+
+	public void setObjet(Sentence objet) {
+		this.objet = objet;
+	}
+
 	public JvnObjectImpl ()
 	{   
 		//creation de l'objet en mode unlock 
@@ -39,8 +49,9 @@ public class JvnObjectImpl implements JvnObject{
 			
 		}
 		else{
-			objet= js.jvnLockRead(jvnGetObjectId());
-		
+			Sentence test = (Sentence) js.jvnLockRead(jvnGetObjectId());
+			this.objet= test.getObjet();
+			
 		}	 
 	}
 
@@ -55,7 +66,11 @@ public class JvnObjectImpl implements JvnObject{
 		if(state.equals(LockState.WC) || state.equals(LockState.W)){
 			state=LockState.W;
 		}else{
-			objet=js.jvnLockWrite(jvnGetObjectId());
+			
+			System.out.println("ici objet: begin -> "+objet);
+			Sentence test = (Sentence) js.jvnLockWrite(jvnGetObjectId());
+			this.objet= test.getObjet();
+			System.out.println("ici objet"+ test.getObjet());
 		}	 
 	}
 
@@ -79,7 +94,9 @@ public class JvnObjectImpl implements JvnObject{
 	}
 
 	public Serializable jvnGetObjectState() throws JvnException {
+		System.out.println("ici objet: begin -> "+objet);
 		
+		this.objet= (Sentence) js.jvnLockWrite(jvnGetObjectId());
 		return objet;
 	}
 	public Serializable jvnGetState() throws JvnException {

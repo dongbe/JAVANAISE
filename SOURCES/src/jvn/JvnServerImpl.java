@@ -152,7 +152,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		
 		JvnObject state=null;
 		try {
+			System.out.println("ici objet"+state);
 			state = (JvnObject) jvnCoordImpl.jvnLockWrite(joi, js);
+			System.out.println("ici objet"+state);
 		} catch (RemoteException e) {
 			System.out.println("erreur au niveau du lock write serveur : "+e.getMessage());
 		}
