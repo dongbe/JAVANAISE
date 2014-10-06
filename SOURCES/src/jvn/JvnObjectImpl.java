@@ -15,6 +15,7 @@ public class JvnObjectImpl implements JvnObject{
 	private JvnServerImpl js=null;
 	private JvnObject objet;
 	
+	
 	public JvnObjectImpl ()
 	{   
 		//creation de l'objet en mode unlock 

@@ -8,6 +8,8 @@
 
 package jvn;
 
+import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -211,6 +213,21 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 	public void setLocktable(HashMap<JvnCodeOS, JvnStatus> locktable) {
 		this.locktable = locktable;
+	}
+	
+	public static void main(String argv[]){
+		  JvnCoordImpl jvnCoordImpl;
+		try {
+			jvnCoordImpl = new JvnCoordImpl();
+	
+			LocateRegistry.createRegistry(1099);
+			String url="rmi://localhost:1099/Coordinator";
+			Naming.rebind(url, jvnCoordImpl);
+			System.out.println("Coordinator ready");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
