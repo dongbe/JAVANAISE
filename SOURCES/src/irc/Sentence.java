@@ -8,12 +8,13 @@
 
 package irc;
 
-import java.beans.Transient;
+
 import java.io.Serializable;
 
+import jvn.JvnCoordImpl.LockState;
 import jvn.JvnObject;
 import jvn.JvnObjectImpl;
-import jvn.JvnServerImpl;
+
 
 public class Sentence  
 			 extends JvnObjectImpl 
@@ -32,11 +33,20 @@ public class Sentence
 	}
 	
 	public void write(String text) {
-		
+		if (state.equals(LockState.W)){
 		data = text;
+		}else{
+			System.out.println("vous n'avez pas suffisament de droits");
+		}
 	}
 	
 	public String read() {
-		return data;	
+		String lecture=null;
+		if(state.equals(LockState.R) || state.equals(LockState.RWC)){
+		 lecture=data;
+		}else{
+			System.out.println("vous n'avez pas suffisament de droits");
+		}
+		return lecture;
 	}	
 }
