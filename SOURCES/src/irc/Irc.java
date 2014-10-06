@@ -31,14 +31,12 @@ public class Irc {
   * create a JVN object named IRC for representing the Chat application
   **/
 	public static void main(String argv[]) {
-	   try {
-				   
-		   JvnCoordImpl jvnCoordImpl = new JvnCoordImpl();
-			LocateRegistry.createRegistry(1099);
-			String url="rmi://localhost:1099/Coordinator";
-			Naming.rebind(url, jvnCoordImpl);
-			System.out.println("Coordinator ready");
-		
+			   
+	
+		try {
+			
+			
+			
 		// initialize JVN
 		JvnServerImpl js = JvnServerImpl.jvnGetServer();
 		//Sentence s = new Sentence();
@@ -56,8 +54,11 @@ public class Irc {
 		}
 		// create the graphical part of the Chat application
 		 new Irc(jo);
-	   
-	   } catch (Exception e) {
+		// create the graphical part of the Chat application
+		// new Irc(jo);
+			  
+	   } 
+		catch (Exception e) {
 		   System.out.println("IRC problem : " + e.getMessage());
 	   }
 	}
