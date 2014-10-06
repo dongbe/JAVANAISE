@@ -13,7 +13,7 @@ public class JvnObjectImpl implements JvnObject{
 	public LockState state;
 	private int id;
 	private JvnServerImpl js=null;
-	private JvnObject objet;
+	private Serializable objet;
 	
 	
 	public JvnObjectImpl ()
@@ -34,11 +34,13 @@ public class JvnObjectImpl implements JvnObject{
 		}
 		if(state.equals(LockState.RC) || state.equals(LockState.R)){
 			state=LockState.R;
+			
 		} else if(state.equals(LockState.RWC)){
 			
 		}
 		else{
-			state=(LockState) js.jvnLockRead(jvnGetObjectId());
+			objet= js.jvnLockRead(jvnGetObjectId());
+		
 		}	 
 	}
 
@@ -53,7 +55,7 @@ public class JvnObjectImpl implements JvnObject{
 		if(state.equals(LockState.WC) || state.equals(LockState.W)){
 			state=LockState.W;
 		}else{
-			state=(LockState) js.jvnLockWrite(jvnGetObjectId());
+			objet=js.jvnLockWrite(jvnGetObjectId());
 		}	 
 	}
 
@@ -92,12 +94,12 @@ public class JvnObjectImpl implements JvnObject{
 	public Serializable jvnInvalidateWriter() throws JvnException {
 
 		state = LockState.WC;
-		return this; //TODO pourquoi un return ??
+		return objet;
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
 		state = LockState.RC;
-		return this;//TODO pourquoi un return ??
+		return objet;
 	}
 
 }
