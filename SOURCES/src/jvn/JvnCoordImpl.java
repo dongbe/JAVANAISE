@@ -110,15 +110,18 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			throws java.rmi.RemoteException, JvnException {
 		
 		JvnCodeOS code = new JvnCodeOS(joi, js);
+		JvnObject objet = null;
+		String jon= locktable.get(code).getJon();
 		System.out.println("table des avant etats : "+locktable.get(code).getJon());
 		if(locktable.get(code).getState().equals(LockState.W) || locktable.get(code).getState().equals(LockState.WC)){
-			js.jvnInvalidateWriterForReader(joi);
+		     objet=(JvnObject) js.jvnInvalidateWriterForReader(joi);
+		     naming.put(jon, objet);
 		}else{
 			locktable.get(code).setState(LockState.R);
 		}
 		
 		System.out.println("table des apres etats : "+locktable.get(code).getState());
-		return locktable.get(code).getState();
+		return naming.get(jon);
 	}
 
 	/**
@@ -136,41 +139,10 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			throws java.rmi.RemoteException, JvnException {
 		
 		JvnCodeOS code = new JvnCodeOS(joi, js);
-		System.out.println("table des avant etats : "+locktable.get(code).getJon());
-		for( Entry<JvnCodeOS,JvnStatus> ent : locktable.entrySet() ){
-			int obj=ent.getKey().getJoi();
-			JvnRemoteServer server=ent.getKey().getJs();
-			/*
-			 * si l'objet est detenu par tous les serveurs en lecture
-			 * on accorde le verrou en ecriture et on invalide les verrous en lecture
-			 */
-			if(joi==obj && ent.getValue().getState().equals(LockState.R) || ent.getValue().getState().equals(LockState.RC)){
-				server.jvnInvalidateReader(joi);
-				locktable.get(code).setState(LockState.W);
-			}
-			/*
-			 * si l'objet est detenu par un serveur en ecriture 
-			 * on attend qu'il libere le verrou
-			 */
-			if(joi==obj && ent.getValue().getState().equals(LockState.W)){
-				JvnObject test =jvnLookupObject(ent.getValue().getJon(),js);
-				try {
-					test.wait();
-				} catch (InterruptedException e) {
-					System.out.println("coord write :"+e.getMessage());
-				}
-			}
-			/*
-			 * si l'objet est detenu par un serveur en ecriture cache ou inutilise
-			 * on invalide le verrou et on l'attribue
-			 */
-			if(joi==obj && ent.getValue().getState().equals(LockState.WC) || ent.getValue().getState().equals(LockState.RWC)){
-				server.jvnInvalidateWriter(joi);
-			}
-		}
-		
-		System.out.println("table des apres etats : "+locktable.get(code).getState());
-		return locktable.get(code).getState();
+		JvnObject objet = null;
+		String jon= locktable.get(code).getJon();
+		locktable.get(code).setState(LockState.W);
+		return naming.get(jon);
 	}
 
 	/**
@@ -184,11 +156,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void jvnTerminate(JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 
-		for (int i = 0; i < locktable.size(); i++) {
-			
-				
-			
-		}
 	}
 
 	public int getId() {

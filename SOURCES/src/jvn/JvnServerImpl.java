@@ -130,23 +130,10 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public Serializable jvnLockRead(int joi) throws JvnException {
-		/*JvnObject jvnObj = getObject(joi);
-
-		if (jvnObj.jvnGetObjectState().equals(lockState.NL)
-				|| jvnObj.jvnGetObjectState().equals(lockState.RC)
-				|| jvnObj.jvnGetObjectState().equals(lockState.WC)
-				|| jvnObj.jvnGetObjectState().equals(lockState.RWC))
-			jvnObj.jvnLockRead();
-		else
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				jvnObj.jvnLockRead();
-				notify();
-			}*/
-		LockState state=null;
+		
+		JvnObject state=null;
 		try {
-			state = (LockState) jvnCoordImpl.jvnLockRead(joi, js);
+			state = (JvnObject) jvnCoordImpl.jvnLockRead(joi, js);
 		} catch (RemoteException e) {
 			System.out.println("erreur au niveau du lock read serveur : "+e.getMessage());
 		}
@@ -163,9 +150,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	public Serializable jvnLockWrite(int joi) throws JvnException {
 		
-		LockState state=null;
+		JvnObject state=null;
 		try {
-			state = (LockState) jvnCoordImpl.jvnLockWrite(joi, js);
+			state = (JvnObject) jvnCoordImpl.jvnLockWrite(joi, js);
 		} catch (RemoteException e) {
 			System.out.println("erreur au niveau du lock write serveur : "+e.getMessage());
 		}
@@ -227,9 +214,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	public Serializable jvnInvalidateWriterForReader(int joi)
 			throws java.rmi.RemoteException, jvn.JvnException {
-
-		
-		return null;
+		JvnObject jvnObj = getObject(joi);
+		jvnObj=(JvnObject) jvnObj.jvnInvalidateWriter();
+		return jvnObj;
 	};
 
 	public JvnRemoteCoord getJvnCoordImpl() {
