@@ -144,7 +144,7 @@ public class Irc {
     System.out.println("Object en mode ecriture normalement: "+irc.sentence.jvnGetState());
     // lock the object in write mode
 		irc.sentence.jvnLockWrite();
-		
+		 
 		// invoke the method
 		((Sentence)(irc.sentence.jvnGetObjectState())).write(s);
 		
