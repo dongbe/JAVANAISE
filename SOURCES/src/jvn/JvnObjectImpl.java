@@ -12,7 +12,7 @@ public class JvnObjectImpl implements JvnObject{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public LockState state;
+	public LockState mode;
 	private int id;
 	private JvnServerImpl js=null;
 	private Object objet=null;
@@ -30,7 +30,7 @@ public class JvnObjectImpl implements JvnObject{
 	{   
 		//creation de l'objet en mode unlock 
 		id = hashCode();
-		state = LockState.NL;
+		mode = LockState.NL;
 		
 	}
 	
@@ -42,17 +42,13 @@ public class JvnObjectImpl implements JvnObject{
 		if(js==null){
 		js= JvnServerImpl.jvnGetServer();
 		}
-		if(state.equals(LockState.RC) || state.equals(LockState.R)){
-			state=LockState.R;
-			
-		} else if(state.equals(LockState.RWC)){
-			
-		}
-		else{
-			
+		if(!mode.equals(LockState.RC)){
 			setObjet(js.jvnLockRead(jvnGetObjectId()));
-			System.out.println("object 4:"+objet);
-		}	 
+			System.out.println("objet read recu par le client : "+ objet);
+			mode = LockState.R;
+		}else{
+			mode = LockState.R;
+		}
 	}
 
 	public synchronized void jvnLockWrite() throws JvnException {
@@ -62,30 +58,27 @@ public class JvnObjectImpl implements JvnObject{
 		 */
 		if(js==null){
 			js= JvnServerImpl.jvnGetServer();
-			System.out.println("ici objet: js -> "+js);
 			}
-		if(state.equals(LockState.WC) || state.equals(LockState.W)){
-			state=LockState.W;
-		}else{
-							
+		if(!mode.equals(LockState.WC)){
 			setObjet(js.jvnLockWrite(jvnGetObjectId()));
-			System.out.println("ici objet: begin -> "+objet);
+			System.out.println("objet write recu par le client : "+ objet); 
+			mode = LockState.W;
+		}else{
+			mode = LockState.W;
+		}
 			
-		}	 
 	}
 
 	public synchronized void jvnUnLock() throws JvnException {
-		/*
-		 * les verrous write et read sont en etat de cache 
-		 * les communications avec le serveur ne sont pas necessaires
-		 */
-		
-		/*if(state.equals(LockState.R)){
-			state= LockState.RC;
-		}else if(state.equals(LockState.W)){
-			state= LockState.WC;
+		switch(mode){
+		case R:
+			mode=LockState.RC;break;	
+		case W:
+			mode=LockState.WC;break;
+		default:
+			mode=LockState.NL;break;
 		}
-		notifyAll();*/
+		js.getCacheObj().put(id, objet);
 	}
 
 	public int jvnGetObjectId() throws JvnException {
@@ -94,26 +87,32 @@ public class JvnObjectImpl implements JvnObject{
 	}
 
 	public synchronized Serializable jvnGetObjectState() throws JvnException {
-		
+		switch(mode){
+		case R:
+			System.out.println("Mode Lecture");break;	
+		case W:
+			System.out.println("Mode Ecriture");break;
+		default:
+			System.out.println("Mode Inconnu");break;
+		}
 		return (Serializable) objet;
 	}
 	public Serializable jvnGetState() throws JvnException {
 		
-		return state;
+		return mode;
 	}
 
 	public void jvnInvalidateReader() throws JvnException {
-		state = LockState.NL;		
+		mode = LockState.NL;		
 	}
 
 	public Serializable jvnInvalidateWriter() throws JvnException {
 
-		state = LockState.WC;
 		return (Serializable) objet;
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
-		state = LockState.RC;
+		
 		return (Serializable) objet;
 	}
 

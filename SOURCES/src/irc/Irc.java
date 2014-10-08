@@ -110,7 +110,7 @@ public class Irc {
 	 try {
 		// lock the object in read mode
 		irc.sentence.jvnLockRead();
-		System.out.println("Object en mode lecture normalement: "+irc.sentence.jvnGetState());
+		System.out.println("Objet : "+irc.sentence.jvnGetObjectId());
 		// invoke the method
 		String s = ((JvnSentenceItf)(irc.sentence.jvnGetObjectState())).read();
 		
@@ -143,7 +143,7 @@ public class Irc {
 	   try {	
 		// get the value to be written from the buffer
     String s = irc.data.getText();
-    System.out.println("Object en mode ecriture normalement: "+irc.sentence.jvnGetState());
+    System.out.println("Objet: "+irc.sentence.jvnGetObjectId());
     // lock the object in write mode
 		irc.sentence.jvnLockWrite();
 		 

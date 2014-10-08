@@ -9,6 +9,7 @@ public class JvnStatus  implements Serializable{
 	
 	private String jon;
 	private LockState state;
+	private JvnRemoteServer js;
 	
 	public String getJon() {
 		return jon;
@@ -26,9 +27,18 @@ public class JvnStatus  implements Serializable{
 		this.state = state;
 	}
 
-	public JvnStatus(String js, LockState st){
+	public JvnStatus(String js, LockState st, JvnRemoteServer js2){
 		this.jon=js;
 		this.state=st;
+		this.setJs(js2);
+	}
+
+	public JvnRemoteServer getJs() {
+		return js;
+	}
+
+	public void setJs(JvnRemoteServer js) {
+		this.js = js;
 	}
 
 

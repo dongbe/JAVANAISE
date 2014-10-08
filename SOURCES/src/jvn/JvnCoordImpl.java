@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 
 	private HashMap<String, JvnObject> naming;
-	private HashMap<Integer, JvnStatus> locktable;
+	private HashMap<JvnCodeOS, JvnStatus> locktable;
 
 	public enum LockState {
 		NL, RC, WC, R, W, RWC;
@@ -36,7 +36,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		id = hashCode();
 
 		naming = new HashMap<String, JvnObject>();
-		locktable = new HashMap<Integer, JvnStatus>();
+		locktable = new HashMap<JvnCodeOS, JvnStatus>();
 		System.out.println("id :" + id);
 	}
 
@@ -70,9 +70,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			throws java.rmi.RemoteException, jvn.JvnException {
 
 		naming.put(jon, jo);
-		//JvnCodeOS code = new JvnCodeOS(, js);
-		JvnStatus status = new JvnStatus(jon, LockState.NL);
-		locktable.put(jo.jvnGetObjectId(),status);
+		JvnCodeOS code = new JvnCodeOS(jo.jvnGetObjectId(), js);
+		JvnStatus status = new JvnStatus(jon, LockState.NL, js);
+		locktable.put(code, status);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			jvnObject = naming.get(jon);
 			System.out.println(" lookup " + jvnObject.jvnGetObjectId());
 		}
-        
+
 		return jvnObject;
 	}
 
@@ -109,23 +109,44 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public synchronized Serializable jvnLockRead(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
-		
-		//JvnCodeOS code = new JvnCodeOS(joi, js);
-		//JvnObject objet = null;
-		/*
-		
-		if(locktable.get(code).getState().equals(LockState.W) || locktable.get(code).getState().equals(LockState.WC)){
-		     objet=(JvnObject) js.jvnInvalidateWriterForReader(joi);
-		     naming.put(jon, objet);
-		}else{
-			locktable.get(code).setState(LockState.R);
+
+		// JvnCodeOS code = new JvnCodeOS(joi, js);
+		String jon = null;
+		JvnObject jvnObject = null;
+
+		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
+			jon = entry.getValue().getJon();
+			JvnCodeOS code = new JvnCodeOS(joi, js);
+			JvnRemoteServer ts = entry.getKey().getJs();
+			
+			if (entry.getKey().getJoi()==joi && !entry.getKey().getJs().equals(js)) {
+				
+				if (entry.getValue().getState().equals(LockState.R)) {
+					JvnStatus statut = new JvnStatus(jon, LockState.R, js);
+					locktable.put(code, statut);
+				} 
+				else if (entry.getValue().getState().equals(LockState.W) || entry.getValue().getState().equals(LockState.RWC)) {	
+					jvnObject = (JvnObject) ts.jvnInvalidateWriter(joi);
+					System.out.println(" objet recu par le coordinateur :"
+							+ jvnObject.jvnGetObjectId());
+					locktable.put(code, new JvnStatus(jon, LockState.R, js));
+				}
+
+			}else if (entry.getKey().getJoi() == joi && entry.getKey().getJs().equals(js)){
+				
+				if (entry.getValue().getState().equals(LockState.W)) {
+					jvnObject=(JvnObject)ts.jvnInvalidateWriterForReader(joi);
+					locktable.put(code, new JvnStatus(jon, LockState.RWC, js));
+				}else{
+					
+					locktable.put(code, new JvnStatus(jon, LockState.R, js));
+					jvnObject=naming.get(jon);
+				}				
+			}
 		}
-		
-		System.out.println("table des apres etats : "+locktable.get(code).getState());*/
-		
-		locktable.get(joi).setState(LockState.R);
-		String jon= locktable.get(joi).getJon();
-		return naming.get(jon);
+		naming.put(jon, jvnObject);
+
+		return jvnObject;
 	}
 
 	/**
@@ -141,11 +162,43 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public synchronized Serializable jvnLockWrite(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
-		
-		//JvnCodeOS code = new JvnCodeOS(joi, js);
-		//JvnObject objet = null;
-		locktable.get(joi).setState(LockState.W);
-		String jon= locktable.get(joi).getJon();
+
+		String jon = null;
+		JvnObject jvnObject = null;
+
+		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
+			jon = entry.getValue().getJon();
+			JvnCodeOS code = new JvnCodeOS(joi, js);
+			JvnRemoteServer ts = entry.getKey().getJs();
+			
+			if (entry.getKey().getJoi() == joi) {
+				
+				if (entry.getValue().getState().equals(LockState.R)) {
+					ts.jvnInvalidateReader(joi);
+					locktable.remove(code);
+					locktable.put(code, new JvnStatus(jon, LockState.W, js));
+					jvnObject=naming.get(jon);
+				} 
+				else if (entry.getValue().getState().equals(LockState.W) || entry.getValue().getState().equals(LockState.RWC)) {	
+					System.out.println(" objet 1");
+					jvnObject = (JvnObject) ts.jvnInvalidateWriter(joi);
+					System.out.println(" objet recu par le coordinateur :"
+							+ jvnObject.jvnGetObjectId());
+					//locktable.remove(code);
+					locktable.put(code, new JvnStatus(jon, LockState.W, js));
+				}else{
+					System.out.println("Objet");
+					locktable.put(code, new JvnStatus(jon, LockState.W, js));
+					jvnObject=naming.get(jon);
+				}
+
+			}else {
+				System.out.println("Objet non referencie dans la base retour NULL");
+			}
+		}
+		naming.put(jon, jvnObject);
+		System.out.println(" objet retourne par le coordinateur :"
+				+ naming.get(jon).jvnGetObjectId());
 		return naming.get(jon);
 	}
 
@@ -178,21 +231,21 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		this.naming = table;
 	}
 
-	public HashMap<Integer, JvnStatus> getLocktable() {
+	public HashMap<JvnCodeOS, JvnStatus> getLocktable() {
 		return locktable;
 	}
 
-	public void setLocktable(HashMap<Integer, JvnStatus> locktable) {
+	public void setLocktable(HashMap<JvnCodeOS, JvnStatus> locktable) {
 		this.locktable = locktable;
 	}
-	
-	public static void main(String argv[]){
-		  JvnCoordImpl jvnCoordImpl;
+
+	public static void main(String argv[]) {
+		JvnCoordImpl jvnCoordImpl;
 		try {
 			jvnCoordImpl = new JvnCoordImpl();
-	
+
 			LocateRegistry.createRegistry(1099);
-			String url="rmi://localhost:1099/Coordinator";
+			String url = "rmi://localhost:1099/Coordinator";
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
 		} catch (Exception e) {
