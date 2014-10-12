@@ -42,11 +42,12 @@ public class JvnObjectImpl implements JvnObject{
 		if(js==null){
 		js= JvnServerImpl.jvnGetServer();
 		}
-		if(!mode.equals(LockState.RC)){
+		if(mode.equals(LockState.RC)){
 			setObjet(js.jvnLockRead(jvnGetObjectId()));
-			System.out.println("objet read recu par le client : "+ objet);
 			mode = LockState.R;
 		}else{
+			setObjet(js.jvnLockRead(jvnGetObjectId()));
+			System.out.println("objet read recu par le client : "+ objet);
 			mode = LockState.R;
 		}
 	}
@@ -59,11 +60,12 @@ public class JvnObjectImpl implements JvnObject{
 		if(js==null){
 			js= JvnServerImpl.jvnGetServer();
 			}
-		if(!mode.equals(LockState.WC)){
-			setObjet(js.jvnLockWrite(jvnGetObjectId()));
-			System.out.println("objet write recu par le client : "+ objet); 
+		if(mode.equals(LockState.WC)){
+			
 			mode = LockState.W;
 		}else{
+			setObjet(js.jvnLockWrite(jvnGetObjectId()));
+			System.out.println("objet write recu par le client : "+ objet); 
 			mode = LockState.W;
 		}
 			
@@ -78,6 +80,7 @@ public class JvnObjectImpl implements JvnObject{
 		default:
 			mode=LockState.NL;break;
 		}
+		System.out.println("Objet unlock: "+objet);
 		js.getCacheObj().put(id, objet);
 	}
 

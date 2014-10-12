@@ -34,21 +34,12 @@ public class Sentence
 	}
 	
 	public void write(String text) {
-		/*if (state.equals(LockState.W)){
+		
 		data = text;
-		}else{
-			System.out.println("vous n'avez pas suffisament de droits");
-		}*/
-		data = text;
+		System.out.println(" ecriture sentence : "+data);
 	}
 	
 	public String read() {
-		/*String lecture=null;
-		if(state.equals(LockState.R) || state.equals(LockState.RWC)){
-		 lecture=data;
-		}else{
-			System.out.println("vous n'avez pas suffisament de droits");
-		}*/
 		return data;
 	}	
 }

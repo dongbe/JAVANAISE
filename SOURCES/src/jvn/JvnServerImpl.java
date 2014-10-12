@@ -79,7 +79,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	public JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException {
 		//Sentence test = (Sentence)o;
-		InvocationHandler invocationHandler = new JvnInvocationHandler(o);
+		InvocationHandler invocationHandler = new JvnInvocationHandler(o,true);
 		ClassLoader loader = o.getClass().getClassLoader();
 		Class<?>[] m = o.getClass().getInterfaces();
 		Object proxy = Proxy.newProxyInstance(loader, m, invocationHandler);
