@@ -11,7 +11,6 @@ public class JvnObjectImpl implements JvnObject{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
 	public LockState mode;
 	private int id;
 	private JvnServerImpl js=null;
