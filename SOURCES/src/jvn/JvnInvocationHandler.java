@@ -27,7 +27,7 @@ public class JvnInvocationHandler implements InvocationHandler , Serializable{
 				
 				result = method.invoke(obj, args);
 			
-			System.out.println(" result:" +result);
+			//System.out.println(" result:" +result);
 		} catch (Exception e) {
 
 		}

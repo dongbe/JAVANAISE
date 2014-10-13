@@ -6,11 +6,10 @@ import java.io.Serializable;
 
 import jvn.JvnCoordImpl.LockState;
 
-public class JvnObjectImpl implements JvnObject{
+public class JvnObjectImpl implements JvnObject, Serializable{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
 	public LockState mode;
 	private int id;
 	private JvnServerImpl js=null;
@@ -112,7 +111,7 @@ public class JvnObjectImpl implements JvnObject{
 			mode=LockState.NL;
 			notifyAll(); break;
 		}
-		js.getCacheObj().put(id, objet);
+		js.getCacheObj().put(id,objet);
 	}
 
 	public int jvnGetObjectId() throws JvnException {
@@ -126,10 +125,14 @@ public class JvnObjectImpl implements JvnObject{
 			System.out.println("Mode Lecture");break;	
 		case W:
 			System.out.println("Mode Ecriture");break;
+		case RC:
+			System.out.println("Mode Lecture cached");break;	
+		case WC:
+			System.out.println("Mode Ecriture cached");break;
 		default:
 			System.out.println("Mode Inconnu");break;
 		}
-		return (Serializable) objet;
+		return objet;
 	}
 	public Serializable jvnGetState() throws JvnException {
 		
@@ -144,13 +147,13 @@ public class JvnObjectImpl implements JvnObject{
 	public synchronized Serializable jvnInvalidateWriter() throws JvnException {
 		mode = LockState.NL;
 		notifyAll();
-		return (Serializable) objet;
+		return objet;
 	}
 
 	public synchronized Serializable jvnInvalidateWriterForReader() throws JvnException {
 		mode = LockState.R;
 		notifyAll();
-		return (Serializable) objet;
+		return objet;
 	}
 
 }
