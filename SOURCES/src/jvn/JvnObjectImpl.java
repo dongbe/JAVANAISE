@@ -112,7 +112,7 @@ public class JvnObjectImpl implements JvnObject{
 			mode=LockState.NL;
 			notifyAll(); break;
 		}
-		js.getCacheObj().put(id, objet);
+		js.getCacheObj().put(id, this);
 	}
 
 	public int jvnGetObjectId() throws JvnException {

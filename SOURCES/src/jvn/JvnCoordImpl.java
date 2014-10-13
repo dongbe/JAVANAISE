@@ -8,7 +8,11 @@
 
 package jvn;
 
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -260,10 +264,27 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		this.naming = table;
 	}
 	public void updateSndCord(){
-		if(this.coordinateur2!=null){
-		this.coordinateur2.locktable=this.locktable;
-		this.coordinateur2.naming= this.naming;}
+		JvnRemoteCoord jvnCoordImpl;
+		try {
+			jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator2");
+			try {
+				jvnCoordImpl.jvnUpdateCache(naming, locktable);
+			} catch (JvnException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			e.printStackTrace();
+		}
+		
 	}
+	
 
 	public HashMap<JvnCodeOS, JvnStatus> getLocktable() {
 		return locktable;
@@ -275,26 +296,34 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 	public static void main(String argv[]) {
 		JvnCoordImpl jvnCoordImpl;
+		String url;
 		try {
 			jvnCoordImpl = new JvnCoordImpl();
-
 			LocateRegistry.createRegistry(1099);
-			String url = "rmi://localhost:1099/Coordinator";
+			url = "rmi://localhost:1099/Coordinator";
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
 			
-			//cordinateur 2 
-			
-			jvnCoordImpl = new JvnCoordImpl();
+		} catch (Exception e) {
+				//cordinateur 2 
+			try {
+				
+				jvnCoordImpl = new JvnCoordImpl();
+				url = "rmi://localhost:1099/Coordinator2";
+				Naming.rebind(url, jvnCoordImpl);
+			} catch (Exception e1) {
+			}
 
 			
-			url = "rmi://localhost:1099/Coordinator2";
-			Naming.rebind(url, jvnCoordImpl);
+		
 			System.out.println("Coordinator2 ready");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+	}
+	public void jvnUpdateCache(HashMap<String, JvnObject> naming,
+	HashMap<JvnCodeOS, JvnStatus> locktable) throws RemoteException, JvnException {
+		this.locktable=locktable;
+		this.naming=naming;
+	
 	}
 
 }
