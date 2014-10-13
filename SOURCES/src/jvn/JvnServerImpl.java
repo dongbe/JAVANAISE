@@ -41,6 +41,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		cacheObj= new HashMap<Integer, Serializable>();
 		System.out.println("toto 2");
 		jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
+		if (jvnCoordImpl== null)
+			jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator2");
 		System.out.println("serveur ready :"+jvnCoordImpl);
 	}
 
@@ -102,6 +104,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 			throws jvn.JvnException {
 		try {
 			jvnCoordImpl.jvnRegisterObject(jon, jo, (JvnRemoteServer) js);
+			
 		} catch (RemoteException e) {
 			System.out.println("erreur lors de l'appel de la methode register"+e.getMessage());
 		}
