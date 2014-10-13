@@ -83,6 +83,18 @@
 			</fileset>
 		</copy>
 	</target>
+	
+	<!--===================================-->
+		<!--==========    RUN   ==========-->
+		<!--===================================-->
+	
+	<target name="run">
+		
+		<java classname="jvn.JvnCoordImpl" dir="${build}" fork="on"/>
+		<java classname="irc.Irc" dir="${build}" fork="on"/>
+		<java classname="irc.Irc" dir="${build}" fork="on"/>
+	
+	</target>
 
 	<!--===================================-->
 	<!--==========    DIST    ==========-->

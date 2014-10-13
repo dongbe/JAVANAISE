@@ -17,11 +17,14 @@ import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+
 
 public class Irc {
 	public TextArea		text;
 	public TextField	data;
-	Frame 			frame;
+	JFrame 			frame;
 	JvnObject       sentence;
 	
 
@@ -72,7 +75,7 @@ public class Irc {
    **/
 	public Irc(JvnObject jo) {
 		sentence = jo;
-		frame=new Frame();
+		frame=new JFrame();
 		frame.setLayout(new GridLayout(1,1));
 		text=new TextArea(10,60);
 		text.setEditable(false);
@@ -89,6 +92,7 @@ public class Irc {
 		frame.setSize(545,201);
 		text.setBackground(Color.black); 
 		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }
 
