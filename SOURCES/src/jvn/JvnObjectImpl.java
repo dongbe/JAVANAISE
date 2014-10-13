@@ -15,22 +15,23 @@ public class JvnObjectImpl implements JvnObject{
 	public LockState mode;
 	private int id;
 	private JvnServerImpl js=null;
-	private Object objet=null;
+	private Serializable objet=null;
 	
 	
-	public Object getObjet() {
+	public Serializable getObjet() {
 		return objet;
 	}
 
-	public void setObjet(Object serializable) {
+	public void setObjet(Serializable serializable) {
 		this.objet = serializable;
 	}
 
-	public JvnObjectImpl ()
+	public JvnObjectImpl (Serializable sentence)
 	{   
 		//creation de l'objet en mode unlock 
 		id = hashCode();
 		mode = LockState.NL;
+		objet=sentence;
 		
 	}
 	

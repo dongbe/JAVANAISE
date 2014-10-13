@@ -30,7 +30,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 
 	private JvnRemoteCoord jvnCoordImpl;
 	
-	private HashMap<Integer, Object> cacheObj;
+	private HashMap<Integer, Serializable> cacheObj;
 
 	/**
 	 * Default constructor
@@ -38,7 +38,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	private JvnServerImpl() throws Exception {
-		cacheObj= new HashMap<Integer, Object>();
+		cacheObj= new HashMap<Integer, Serializable>();
 		System.out.println("toto 2");
 		jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
 		System.out.println("serveur ready :"+jvnCoordImpl);
@@ -78,10 +78,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException {
-		//Sentence test = (Sentence)o;
-		InvocationHandler invocationHandler = new JvnInvocationHandler(o,true);
-		ClassLoader loader = o.getClass().getClassLoader();
-		Class<?>[] m = o.getClass().getInterfaces();
+		JvnObjectImpl objet = new JvnObjectImpl(o);
+		InvocationHandler invocationHandler = new JvnInvocationHandler(objet,true);
+		//InvocationHandler invocationPHandler = new JvnProxyInvocationHandler(p);
+		ClassLoader loader = objet.getClass().getClassLoader();
+		Class<?>[] m = objet.getClass().getInterfaces();
 		Object proxy = Proxy.newProxyInstance(loader, m, invocationHandler);
         
 		return (JvnObject) proxy;
@@ -143,7 +144,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 			System.out.println("erreur au niveau du lock read serveur : "+e.getMessage());
 		}
 		
-		return stateObj;
+		return stateObj.jvnGetObjectState();
 	}
 
 	/**
@@ -165,7 +166,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 			System.out.println("erreur au niveau du lock write serveur : "+e.getMessage());
 		}
 		
-		return stateObj;
+		return stateObj.jvnGetObjectState();
 	}
 
 	/**
@@ -229,11 +230,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		this.jvnCoordImpl = jvnCoordImpl;
 	}
 
-	public HashMap<Integer, Object> getCacheObj() {
+	public HashMap<Integer, Serializable> getCacheObj() {
 		return cacheObj;
 	}
 
-	public void setCacheObj(HashMap<Integer, Object> cacheObj) {
+	public void setCacheObj(HashMap<Integer, Serializable> cacheObj) {
 		this.cacheObj = cacheObj;
 	}
 

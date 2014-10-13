@@ -112,7 +112,7 @@ public class Irc {
 		irc.sentence.jvnLockRead();
 		System.out.println("Objet : "+irc.sentence.jvnGetObjectId());
 		// invoke the method
-		String s = ((JvnSentenceItf)(irc.sentence.jvnGetObjectState())).read();
+		String s = ((Sentence)(irc.sentence.jvnGetObjectState())).read();
 		
 		// unlock the object
 		irc.sentence.jvnUnLock();
@@ -149,7 +149,7 @@ public class Irc {
 		 
 		// invoke the method
 		
-		((JvnSentenceItf) irc.sentence.jvnGetObjectState()).write(s);
+		((Sentence) irc.sentence.jvnGetObjectState()).write(s);
 		
 		
 		// unlock the object

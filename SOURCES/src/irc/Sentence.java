@@ -18,8 +18,7 @@ import jvn.JvnSentenceItf;
 
 
 public class Sentence  
-			 extends JvnObjectImpl 
-			         implements  JvnSentenceItf,Serializable, JvnObject{
+			         implements  JvnSentenceItf,Serializable{
 	/**
 	 * 
 	 */
@@ -29,7 +28,6 @@ public class Sentence
 	//private State state=null;
   
 	public Sentence() {
-		super();
 		data = new String("");
 	}
 	
