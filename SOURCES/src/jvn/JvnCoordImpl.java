@@ -21,6 +21,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 	private HashMap<String, JvnObject> naming;
 	private HashMap<JvnCodeOS, JvnStatus> locktable;
+	JvnCoordImpl coordinateur2 = null ;
 
 	public enum LockState {
 		NL, RC, WC, R, W, RWC;
@@ -39,6 +40,10 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		naming = new HashMap<String, JvnObject>();
 		locktable = new HashMap<JvnCodeOS, JvnStatus>();
 		System.out.println("id :" + id);
+	}
+	public JvnCoordImpl(JvnCoordImpl coordinateur) throws Exception {
+		id = hashCode();
+		this.coordinateur2=coordinateur;
 	}
 
 	/**
@@ -74,6 +79,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		JvnCodeOS code = new JvnCodeOS(jo.jvnGetObjectId(), js);
 		JvnStatus status = new JvnStatus(jon, LockState.NL, js);
 		locktable.put(code, status);
+		updateSndCord();
 	}
 
 	/**
@@ -148,7 +154,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			}
 		}
 		//naming.put(jon, jvnObject);
-
+		updateSndCord();
 		return naming.get(jon);
 	}
 
@@ -212,6 +218,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		//naming.put(jon, jvnObject);
 		System.out.println(" objet retourne par le coordinateur :"
 				+ naming.get(jon).jvnGetObjectId());
+		updateSndCord();
 		return naming.get(jon);
 	}
 
@@ -226,14 +233,15 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void jvnTerminate(JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 		int joi ;
-
-		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
-			
+		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {		
 			if (entry.getKey().getJs().equals(js)) {
 				joi= entry.getKey().getJoi();
 				naming.remove(joi);
-				locktable.remove(entry.getKey());	
-				} }
+				locktable.remove(entry.getKey());	// à verifier si cette instruction engendre une 
+													// suppression multiple de serveur 
+				}
+			}
+		updateSndCord();
 	}
 
 	public int getId() {
@@ -250,6 +258,11 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 	public void setTable(HashMap<String, JvnObject> table) {
 		this.naming = table;
+	}
+	public void updateSndCord(){
+		if(this.coordinateur2!=null){
+		this.coordinateur2.locktable=this.locktable;
+		this.coordinateur2.naming= this.naming;}
 	}
 
 	public HashMap<JvnCodeOS, JvnStatus> getLocktable() {
@@ -270,7 +283,14 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
 			
-		
+			//cordinateur 2 
+			
+			jvnCoordImpl = new JvnCoordImpl();
+
+			
+			url = "rmi://localhost:1099/Coordinator2";
+			Naming.rebind(url, jvnCoordImpl);
+			System.out.println("Coordinator2 ready");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
