@@ -225,7 +225,15 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public void jvnTerminate(JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
+		int joi ;
 
+		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
+			
+			if (entry.getKey().getJs().equals(js)) {
+				joi= entry.getKey().getJoi();
+				naming.remove(joi);
+				locktable.remove(entry.getKey());	
+				} }
 	}
 
 	public int getId() {
@@ -261,6 +269,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			String url = "rmi://localhost:1099/Coordinator";
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
+			
+		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
