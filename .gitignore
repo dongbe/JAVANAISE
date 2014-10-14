@@ -1,4 +1,6 @@
 /SOURCES/build/*
-*.class
-
-
+/SOURCES/build/irc/
+/SOURCES/build/jvn/
+/SOURCES/build/irc/*.class
+/SOURCES/build/jvn/*.class
+/SOURCES/build/
