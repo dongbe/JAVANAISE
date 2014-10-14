@@ -8,6 +8,7 @@
 package jvn;
 
 import java.rmi.*;
+import java.util.HashMap;
 import java.io.*;
 
 
@@ -69,10 +70,14 @@ public interface JvnRemoteCoord extends Remote {
 	* A JVN server terminates
 	* @param js  : the remote reference of the server
 	* @throws java.rmi.RemoteException, JvnException
-	**/
+	**/   
   public void jvnTerminate(JvnRemoteServer js)
 	 throws java.rmi.RemoteException, JvnException;
 
- }
+  public void jvnUpdateCache(HashMap<String, JvnJonObj> naming,
+	HashMap<JvnCodeOS, JvnStatus> locktable)
+		    throws java.rmi.RemoteException, JvnException;
+}
+
 
 

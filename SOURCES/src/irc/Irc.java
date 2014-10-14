@@ -65,7 +65,8 @@ public class Irc {
 			  
 	   } 
 		catch (Exception e) {
-		   System.out.println("IRC problem : " + e.getMessage());
+		   System.out.println("IRC problem creation: " + e.getMessage());
+		   e.printStackTrace();
 	   }
 	}
 
@@ -125,7 +126,7 @@ public class Irc {
 		irc.data.setText(s);
 		irc.text.append(s+"\n");
 	   } catch (JvnException je) {
-		   System.out.println("IRC problem : " + je.getMessage());
+		   System.out.println("IRC problem read : " + je.getMessage());
 	   }
 	}
 }
@@ -159,7 +160,9 @@ public class Irc {
 		// unlock the object
 		irc.sentence.jvnUnLock();
 	 } catch (JvnException je) {
-		   System.out.println("IRC problem  : " + je.getMessage());
+		   System.out.println("IRC problem write : " + je.getMessage());
+		   
+		   je.printStackTrace();
 	 }
 	}
 }
