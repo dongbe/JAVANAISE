@@ -12,27 +12,23 @@ import irc.Sentence;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
-import jvn.JvnCoordImpl.LockState;
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 
 public class JvnServerImpl extends UnicastRemoteObject implements
-		JvnLocalServer, JvnRemoteServer, Serializable{
+		JvnLocalServer, JvnRemoteServer, Serializable {
 
 	// A JVN server is managed as a singleton
 	private static JvnServerImpl js = null;
 
 	private JvnRemoteCoord jvnCoordImpl, jvnCoordImpl2;
-	
+
 	private HashMap<Integer, Serializable> cacheObj;
-	
-	String jonS=null;
 
 	/**
 	 * Default constructor
@@ -40,13 +36,15 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	private JvnServerImpl() throws Exception {
-		cacheObj= new HashMap<Integer, Serializable>();
-		System.out.println("toto 2");
-		jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
-         if (jvnCoordImpl== null)
-			 jvnCoordImpl2 = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator2");
+		cacheObj = new HashMap<Integer, Serializable>();
+		//System.out.println("toto 2");
+		jvnCoordImpl = (JvnRemoteCoord) Naming
+				.lookup("rmi://localhost:1099/Coordinator");
+		if (jvnCoordImpl == null)
+			jvnCoordImpl2 = (JvnRemoteCoord) Naming
+					.lookup("rmi://localhost:1099/Coordinator2");
 
-		System.out.println("serveur ready :"+jvnCoordImpl);
+		System.out.println("serveur ready :" + jvnCoordImpl);
 	}
 
 	/**
@@ -83,14 +81,21 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException {
-		JvnObjectImpl objet = new JvnObjectImpl(o);
-		InvocationHandler invocationHandler = new JvnInvocationHandler(objet,true);
-		//InvocationHandler invocationPHandler = new JvnProxyInvocationHandler(p);
-		ClassLoader loader = objet.getClass().getClassLoader();
-		Class<?>[] m = objet.getClass().getInterfaces();
-		Object proxy = Proxy.newProxyInstance(loader, m, invocationHandler);
-        
-		return (JvnObject) proxy;
+		JvnObject proxy = null;
+		System.out.println("ok :"+o.getClass().getName());
+		if (o.getClass().getName().equalsIgnoreCase("irc.sentence")) {
+			System.out.println("test");
+			proxy = new JvnObjectImpl(o);
+		} else {
+
+			InvocationHandler invocationHandler = new JvnInvocationHandler(o,
+					true);
+			ClassLoader loader = o.getClass().getClassLoader();
+			Class<?>[] m = o.getClass().getInterfaces();
+			proxy = (JvnObject) Proxy.newProxyInstance(loader, m,
+					invocationHandler);
+		}
+		return proxy;
 
 	}
 
@@ -106,15 +111,15 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	public void jvnRegisterObject(String jon, JvnObject jo)
 			throws jvn.JvnException {
 		try {
-			jonS = jon;
 
 			if (jvnCoordImpl != null)
-			jvnCoordImpl.jvnRegisterObject(jon, jo, (JvnRemoteServer) js);
-			else 
-				jvnCoordImpl2.jvnRegisterObject(jon, jo, (JvnRemoteServer) js);
-			
+				jvnCoordImpl.jvnRegisterObject(jon, jo, (JvnRemoteServer)js);
+			else
+				jvnCoordImpl2.jvnRegisterObject(jon, jo, (JvnRemoteServer)js);
+
 		} catch (RemoteException e) {
-			System.out.println("erreur lors de l'appel de la methode register"+e.getMessage());
+			System.out.println("erreur lors de l'appel de la methode register : "
+					+ e.getMessage());
 		}
 	}
 
@@ -130,10 +135,10 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		JvnObject jvnObject = null;
 		try {
 			if (jvnCoordImpl != null)
-				jvnObject=jvnCoordImpl.jvnLookupObject(jon, this);
-			else 
-				jvnObject=jvnCoordImpl2.jvnLookupObject(jon, this);
-			
+				jvnObject = jvnCoordImpl.jvnLookupObject(jon, (JvnRemoteServer)js);
+			else
+				jvnObject = jvnCoordImpl2.jvnLookupObject(jon, (JvnRemoteServer)js);
+
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -150,18 +155,19 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public Serializable jvnLockRead(int joi) throws JvnException {
-		
-		Serializable stateObj=null;
+
+		Serializable stateObj = null;
 		try {
-	if (jvnCoordImpl != null)
-				stateObj= jvnCoordImpl.jvnLockRead(joi, js);
-			else 
-				stateObj= jvnCoordImpl2.jvnLockRead(joi, js);
-		
+			if (jvnCoordImpl != null)
+				stateObj = jvnCoordImpl.jvnLockRead(joi, (JvnRemoteServer)js);
+			else
+				stateObj = jvnCoordImpl2.jvnLockRead(joi, (JvnRemoteServer)js);
+
 		} catch (RemoteException e) {
-			System.out.println("erreur au niveau du lock read serveur : "+e.getMessage());
+			System.out.println("erreur au niveau du lock read serveur : "
+					+ e.getMessage());
 		}
-		
+
 		return stateObj;
 	}
 
@@ -174,19 +180,20 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public Serializable jvnLockWrite(int joi) throws JvnException {
-		
-		Serializable stateObj=null;
+
+		Serializable stateObj = null;
 		try {
-			
+
 			if (jvnCoordImpl != null)
-				stateObj= jvnCoordImpl.jvnLockWrite(joi, js);
-			else 
-				stateObj= jvnCoordImpl2.jvnLockWrite(joi, js);
+				stateObj = jvnCoordImpl.jvnLockWrite(joi,(JvnRemoteServer)js);
+			else
+				stateObj = jvnCoordImpl2.jvnLockWrite(joi, (JvnRemoteServer)js);
 
 		} catch (RemoteException e) {
-			System.out.println("erreur au niveau du lock write serveur : "+e.getMessage());
+			System.out.println("erreur au niveau du lock write serveur : "
+					+ e.getMessage());
 		}
-		
+
 		return stateObj;
 	}
 
@@ -207,7 +214,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 
 	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException,
 			jvn.JvnException {
-		
+
 		cacheObj.remove(joi);
 	}
 
@@ -237,24 +244,24 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	public Serializable jvnInvalidateWriterForReader(int joi)
 			throws java.rmi.RemoteException, jvn.JvnException {
-		
+
 		return cacheObj.get(joi);
 	};
 
 	public JvnRemoteCoord getJvnCoordImpl() {
 		if (jvnCoordImpl != null)
-			return jvnCoordImpl ;
-		else 
-			
-		return jvnCoordImpl2;
+			return jvnCoordImpl;
+		else
+
+			return jvnCoordImpl2;
 	}
 
 	public void setJvnCoordImpl(JvnCoordImpl jvnCoordImpl) {
 		if (jvnCoordImpl != null)
 			this.jvnCoordImpl = jvnCoordImpl;
-			else 
-				
-		this.jvnCoordImpl2 = jvnCoordImpl;
+		else
+
+			this.jvnCoordImpl2 = jvnCoordImpl;
 	}
 
 	public HashMap<Integer, Serializable> getCacheObj() {

@@ -12,13 +12,7 @@ import java.awt.event.*;
 
 import jvn.*;
 
-import java.io.*;
-import java.rmi.Naming;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-
 import javax.swing.JFrame;
-import javax.swing.WindowConstants;
 
 
 public class Irc {
@@ -50,7 +44,7 @@ public class Irc {
 		JvnObject jo = js.jvnLookupObject("IRC");
 		
 		if (jo == null) {
-			jo = js.jvnCreateObject((Serializable)new Sentence());
+			jo = js.jvnCreateObject(new Sentence());
 			// after creation, I have a write lock on the object
 			jo.jvnUnLock();
 			js.jvnRegisterObject("IRC", jo);
@@ -134,7 +128,7 @@ public class Irc {
  /**
   * Internal class to manage user events (write) on the CHAT application
   **/
- class writeListener implements ActionListener {
+ class writeListener  implements ActionListener {
 	Irc irc;
   
 	public writeListener (Irc i) {

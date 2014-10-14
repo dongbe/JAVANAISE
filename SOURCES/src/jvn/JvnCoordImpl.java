@@ -17,7 +17,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.io.Serializable;
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
@@ -267,6 +266,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void setTable(HashMap<String, JvnJonObj> table) {
 		this.naming = table;
 	}
+	
 	public void updateSndCord(){
 		JvnRemoteCoord jvnCoordImpl;
 		try {
@@ -308,13 +308,15 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
 			
+			jvnCoordImpl = new JvnCoordImpl();
+			url = "rmi://localhost:1099/Coordinator2";
+			Naming.rebind(url, jvnCoordImpl);
+			
 		} catch (Exception e) {
 				//cordinateur 2 
 			try {
 				
-				jvnCoordImpl = new JvnCoordImpl();
-				url = "rmi://localhost:1099/Coordinator2";
-				Naming.rebind(url, jvnCoordImpl);
+				
 			} catch (Exception e1) {
 			}
 

@@ -1,7 +1,5 @@
 package jvn;
 
-import irc.Sentence;
-
 import java.io.Serializable;
 
 import jvn.JvnCoordImpl.LockState;
@@ -111,7 +109,8 @@ public class JvnObjectImpl implements JvnObject, Serializable{
 			mode=LockState.NL;
 			notifyAll(); break;
 		}
-		js.getCacheObj().put(id,objet);
+		
+		JvnServerImpl.jvnGetServer().getCacheObj().put(id,objet);
 	}
 
 	public int jvnGetObjectId() throws JvnException {
