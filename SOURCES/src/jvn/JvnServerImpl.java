@@ -28,7 +28,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 
 	private JvnRemoteCoord jvnCoordImpl, jvnCoordImpl2;
 
-	private HashMap<Integer, Serializable> cacheObj;
+	private HashMap<Integer, JvnObject> cacheObj;
 
 	/**
 	 * Default constructor
@@ -36,7 +36,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	private JvnServerImpl() throws Exception {
-		cacheObj = new HashMap<Integer, Serializable>();
+		cacheObj = new HashMap<Integer, JvnObject>();
 		//System.out.println("toto 2");
 		jvnCoordImpl = (JvnRemoteCoord) Naming
 				.lookup("rmi://localhost:1099/Coordinator");
@@ -111,7 +111,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	public void jvnRegisterObject(String jon, JvnObject jo)
 			throws jvn.JvnException {
 		try {
-
+			
 			if (jvnCoordImpl != null)
 				jvnCoordImpl.jvnRegisterObject(jon, jo, (JvnRemoteServer)js);
 			else
@@ -193,7 +193,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 			System.out.println("erreur au niveau du lock write serveur : "
 					+ e.getMessage());
 		}
-
+        
 		return stateObj;
 	}
 
@@ -214,8 +214,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 
 	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException,
 			jvn.JvnException {
-
-		cacheObj.remove(joi);
+		 JvnObject jo=cacheObj.get(joi);
+		 jo.jvnInvalidateReader();
 	}
 
 	/**
@@ -229,8 +229,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	public Serializable jvnInvalidateWriter(int joi)
 			throws java.rmi.RemoteException, jvn.JvnException {
-
-		return cacheObj.get(joi);
+		
+        JvnObject jo=cacheObj.get(joi);
+		return jo.jvnInvalidateWriter();
 	}
 
 	/**
@@ -244,8 +245,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	public Serializable jvnInvalidateWriterForReader(int joi)
 			throws java.rmi.RemoteException, jvn.JvnException {
-
-		return cacheObj.get(joi);
+		 JvnObject jo=cacheObj.get(joi);
+			return jo.jvnInvalidateWriterForReader();
 	};
 
 	public JvnRemoteCoord getJvnCoordImpl() {
@@ -264,11 +265,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 			this.jvnCoordImpl2 = jvnCoordImpl;
 	}
 
-	public HashMap<Integer, Serializable> getCacheObj() {
+	public HashMap<Integer, JvnObject> getCacheObj() {
 		return cacheObj;
 	}
 
-	public void setCacheObj(HashMap<Integer, Serializable> cacheObj) {
+	public void setCacheObj(HashMap<Integer, JvnObject> cacheObj) {
 		this.cacheObj = cacheObj;
 	}
 

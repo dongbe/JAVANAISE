@@ -18,7 +18,7 @@ import jvn.JvnSentenceItf;
 
 public class JvnProxSentence
 					extends JvnObjectImpl
-			         implements  JvnSentenceItf, Serializable, JvnObject{
+			        implements  JvnSentenceItf, Serializable, JvnObject{
 	/**
 	 * 
 	 */

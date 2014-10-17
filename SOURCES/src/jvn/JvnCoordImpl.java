@@ -24,7 +24,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	private HashMap<String, JvnJonObj> naming;
 	private HashMap<JvnCodeOS, JvnStatus> locktable;
 	JvnCoordImpl coordinateur2 = null ;
-
 	public enum LockState {
 		NL, RC, WC, R, W, RWC;
 	}
@@ -79,7 +78,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		naming.put(jon, (new JvnJonObj(jo.jvnGetObjectState(),jo)));
 		JvnCodeOS code = new JvnCodeOS(jo.jvnGetObjectId(), js);
-		JvnStatus status = new JvnStatus(jon, LockState.NL, js);
+		JvnStatus status = new JvnStatus(jon, LockState.W, js);
 		locktable.put(code, status);
 		updateSndCord();
 	}
@@ -160,7 +159,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 				}				
 			}
 		}
-		//naming.put(jon, jvnObject);
 		updateSndCord();
 		return naming.get(jon).getObjet();
 	}
@@ -178,27 +176,25 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public synchronized Serializable jvnLockWrite(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
+		
         ArrayList<JvnCodeOS> list = new ArrayList<JvnCodeOS>();
 		String jon = null;
-		//JvnObject jvnObject = null;
-		JvnCodeOS code=null;
+		JvnCodeOS code = new JvnCodeOS(joi, js);
+		JvnObject jvnObject = naming.get(locktable.get(code).getJon()).getJs();
 		Serializable objet=null;
 		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
 			System.out.println(entry.getKey().getJoi()+" : "+entry.getValue().getState());
 		}
 		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
 			jon = entry.getValue().getJon();
-			code = new JvnCodeOS(joi, js);
+			JvnCodeOS key = entry.getKey();
 			JvnRemoteServer ts = entry.getKey().getJs();
 			
 			if (entry.getKey().getJoi() == joi) {
 				
 				if (entry.getValue().getState().equals(LockState.R)) {
 					ts.jvnInvalidateReader(joi);
-					list.add(code);
-					//locktable.remove(code);
-					//locktable.put(code, new JvnStatus(jon, LockState.W, js));
-					//jvnObject=naming.get(jon);
+					list.add(key);
 				} 
 				else if (entry.getValue().getState().equals(LockState.W) || entry.getValue().getState().equals(LockState.RWC)) {	
 					System.out.println(" objet 1");
@@ -206,13 +202,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 					System.out.println(" objet recu par le coordinateur :"
 							+ objet);
 					naming.get(jon).setObjet(objet);
-					list.add(code);
-					//locktable.remove(code);
-					//locktable.put(code, new JvnStatus(jon, LockState.W, js));
+					list.add(key);
 				}else{
 					System.out.println("Objet");
-					//locktable.put(code, new JvnStatus(jon, LockState.W, js));
-					//jvnObject=naming.get(jon);
 				}
 
 			}else {
@@ -223,9 +215,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			locktable.remove(list.get(i));
 		}
 		locktable.put(code, new JvnStatus(jon, LockState.W, js));
-		//naming.put(jon, jvnObject);
 		System.out.println(" objet retourne par le coordinateur :"
 				+ naming.get(jon).getObjet());
+		
 		return naming.get(jon).getObjet();
 	}
 
@@ -266,7 +258,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void setTable(HashMap<String, JvnJonObj> table) {
 		this.naming = table;
 	}
-	
 	public void updateSndCord(){
 		JvnRemoteCoord jvnCoordImpl;
 		try {
@@ -307,7 +298,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			url = "rmi://localhost:1099/Coordinator";
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
-			
 			jvnCoordImpl = new JvnCoordImpl();
 			url = "rmi://localhost:1099/Coordinator2";
 			Naming.rebind(url, jvnCoordImpl);
