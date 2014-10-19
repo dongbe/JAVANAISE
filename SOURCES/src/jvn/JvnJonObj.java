@@ -6,11 +6,11 @@ public class JvnJonObj implements Serializable {
 
 	private Serializable objet;
 
-	private JvnObject js;
+	private JvnObject jo;
 
-	public JvnJonObj(Serializable objet, JvnObject jserv) {
+	public JvnJonObj(Serializable objet, JvnObject jobjet) {
 		this.objet = objet;
-		js = jserv;
+		jo = jobjet;
 	}
 
 	public Serializable getObjet() {
@@ -20,13 +20,13 @@ public class JvnJonObj implements Serializable {
 		this.objet=objet;
 	}
 
-	public JvnObject getJs() {
-		return js;
+	public JvnObject getJo() {
+		return jo;
 	}
 
 	@Override
 	public int hashCode() {
-		return objet.hashCode()+js.hashCode();
+		return objet.hashCode()+jo.hashCode();
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class JvnJonObj implements Serializable {
         if (obj == null)return false;
         if (!(obj instanceof JvnJonObj)) return false;
         JvnJonObj key = (JvnJonObj) obj;
-        return objet == key.getObjet() && js.equals(key.getJs());
+        return objet == key.getObjet() && jo.equals(key.getJo());
         
 	}
 }

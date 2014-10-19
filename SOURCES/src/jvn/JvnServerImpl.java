@@ -57,6 +57,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		if (js == null) {
 			try {
 				js = new JvnServerImpl();
+				System.out.println("new serveur");
 			} catch (Exception e) {
 				return null;
 			}
@@ -138,7 +139,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 				jvnObject = jvnCoordImpl.jvnLookupObject(jon, (JvnRemoteServer)js);
 			else
 				jvnObject = jvnCoordImpl2.jvnLookupObject(jon, (JvnRemoteServer)js);
-
+			if(jvnObject!=null){
+				cacheObj.put(jvnObject.jvnGetObjectId(), jvnObject);
+			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

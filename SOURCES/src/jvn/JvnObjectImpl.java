@@ -26,7 +26,6 @@ public class JvnObjectImpl implements JvnObject, Serializable {
 		id = hashCode();
 		mode = LockState.W;
 		objet = sentence;
-
 	}
 
 	public void jvnLockRead() throws JvnException {
@@ -66,8 +65,7 @@ public class JvnObjectImpl implements JvnObject, Serializable {
 		boolean test = false;
 		synchronized (this) {
 			if (mode.equals(LockState.WC)) {
-				System.out
-						.println("objet write reuse par le client : " + objet);
+				System.out.println("objet write reuse par le client : " + objet);
 				mode = LockState.W;
 			} else {
 				test = true;
@@ -95,6 +93,7 @@ public class JvnObjectImpl implements JvnObject, Serializable {
 			notifyAll();
 			break;
 		}
+		System.out.println(" unlock"+mode);
 		JvnServerImpl.jvnGetServer().getCacheObj().put(id, this);
 	}
 
@@ -159,6 +158,7 @@ public class JvnObjectImpl implements JvnObject, Serializable {
 			mode = LockState.NL;
 
 		} else if (mode.equals(LockState.WC)) {
+			System.out.println("RC=>NL");
 			mode = LockState.NL;
 		}
 		return objet;
