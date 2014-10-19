@@ -42,7 +42,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 				.lookup("rmi://localhost:1099/Coordinator");
 		if (jvnCoordImpl == null)
 			jvnCoordImpl2 = (JvnRemoteCoord) Naming
-					.lookup("rmi://localhost:1099/Coordinator2");
+					.lookup("rmi://localhost:1099/slave");
 
 		System.out.println("serveur ready :" + jvnCoordImpl);
 	}

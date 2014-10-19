@@ -13,6 +13,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 	private HashMap<String, JvnJonObj> naming;
 	private HashMap<JvnCodeOS, JvnStatus> locktable;
-	JvnCoordImpl coordinateur2 = null ;
+	JvnRemoteCoord coordinateur2 = null ;
 	public enum LockState {
 		NL, RC, WC, R, W, RWC;
 	}
@@ -42,10 +43,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		locktable = new HashMap<JvnCodeOS, JvnStatus>();
 		System.out.println("id :" + id);
 	}
-	public JvnCoordImpl(JvnCoordImpl coordinateur) throws Exception {
-		id = hashCode();
-		this.coordinateur2=coordinateur;
-	}
+
 
 	/**
 	 * Allocate a NEW JVN object id (usually allocated to a newly created JVN
@@ -80,7 +78,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		JvnCodeOS code = new JvnCodeOS(jo.jvnGetObjectId(), js);
 		JvnStatus status = new JvnStatus(jon, LockState.W, js);
 		locktable.put(code, status);
-		updateSndCord();
+		updateSlave();
 	}
 
 	/**
@@ -163,7 +161,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			locktable.remove(list.get(i));
 		}
 		locktable.put(code, new JvnStatus(jon, LockState.R, js));
-		updateSndCord();
+		updateSlave();
 		return naming.get(jon).getObjet();
 	}
 
@@ -228,6 +226,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
 			System.out.println(entry.getKey().getJoi()+" : "+entry.getValue().getState());
 		}
+		updateSlave();
 		return naming.get(jon).getObjet();
 	}
 
@@ -250,9 +249,45 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 													// suppression multiple de serveur 
 				}
 			}
-		updateSndCord();
+		updateSlave();
 	}
 
+	public HashMap<String, JvnJonObj> getNaming(){return this.naming;}
+	public HashMap<JvnCodeOS, JvnStatus> getLocktableser(){return this.locktable;}
+	public void addSlave(JvnRemoteCoord coordinateur_P ){	
+		coordinateur2 = coordinateur_P;
+		updateSlave();
+	}
+	
+
+	public void updateSlave(){
+		JvnRemoteCoord jvnCoordImpl;
+		try {
+			jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
+			try {
+				System.out.println("Before -- UpdateSlave lockup"+jvnCoordImpl.getLocktableser());
+				System.out.println("Before -- UpdateSlave Namming"+jvnCoordImpl.getNaming());
+				jvnCoordImpl.jvnUpdateCache(naming, locktable);
+				JvnRemoteCoord jvnCoord = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
+				System.out.println("After -- UpdateSlave lockup"+jvnCoordImpl.getLocktableser());
+				System.out.println("After -- UpdateSlave lockup"+jvnCoord.getLocktableser());
+				
+				System.out.println("After -- UpdateSlave Namming"+jvnCoordImpl.getNaming());
+				System.out.println("After -- UpdateSlave Namming"+jvnCoord.getNaming());
+			} catch (JvnException e) {
+				e.printStackTrace();
+			}
+			
+			
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		} catch (NotBoundException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	public int getId() {
 		return id;
 	}
@@ -302,27 +337,41 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public static void main(String argv[]) {
 		JvnCoordImpl jvnCoordImpl;
 		String url;
+		
 		try {
-			jvnCoordImpl = new JvnCoordImpl();
 			LocateRegistry.createRegistry(1099);
+			jvnCoordImpl = new JvnCoordImpl();
 			url = "rmi://localhost:1099/Coordinator";
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
-			jvnCoordImpl = new JvnCoordImpl();
-			url = "rmi://localhost:1099/Coordinator2";
-			Naming.rebind(url, jvnCoordImpl);
+			System.out.println("heeeere !");
 			
-		} catch (Exception e) {
+		} catch (ExportException e0) {
 				//cordinateur 2 
-			try {
-				
-				
-			} catch (Exception e1) {
+		try {
+			JvnRemoteCoord jvnCoord = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
+			String[] list = Naming.list("rmi://localhost:1099");
+			System.out.println("list"+list.length);
+			if (list.length == 1){
+				System.out.println("and heeeere !");
+			jvnCoordImpl = new JvnCoordImpl();
+			url = "rmi://localhost:1099/slave";
+			Naming.bind(url, jvnCoordImpl);
+			jvnCoord.addSlave((JvnRemoteCoord)jvnCoordImpl);
+			System.out.println("Slave ready");
+			} else 
+				System.out.println("Slave already exists !");}
+			catch(Exception e1){
+				e1.printStackTrace();
 			}
-
-			
 		
-			System.out.println("Coordinator2 ready");
+			
+		} catch (RemoteException e) {
+			
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	public void jvnUpdateCache(HashMap<String, JvnJonObj> naming,

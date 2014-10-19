@@ -77,6 +77,11 @@ public interface JvnRemoteCoord extends Remote {
   public void jvnUpdateCache(HashMap<String, JvnJonObj> naming,
 	HashMap<JvnCodeOS, JvnStatus> locktable)
 		    throws java.rmi.RemoteException, JvnException;
+  
+  public void addSlave(JvnRemoteCoord coordinateur_P )
+		  throws java.rmi.RemoteException, JvnException;
+  public Serializable getNaming()  throws java.rmi.RemoteException, JvnException;
+  public Serializable getLocktableser()  throws java.rmi.RemoteException, JvnException;
 }
 
 
