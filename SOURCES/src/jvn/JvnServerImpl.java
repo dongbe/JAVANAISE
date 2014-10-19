@@ -248,8 +248,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 				
 				e1.printStackTrace();
 			}
-			System.out.println("erreur lors de l'appel de la methode register : "
-					+ e.getMessage());
+		
 		} catch (MalformedURLException e) {
 			try {
 				stateObj = jvnCoordImpl2.jvnLockWrite(joi, (JvnRemoteServer)js);

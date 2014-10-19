@@ -266,9 +266,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	
 		
 		try {
-			 Naming.list("rmi://localhost:1099");
-			
-			jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
+			 String[] list = Naming.list("rmi://localhost:1099");
+			if (list.length == 2)
+			{jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
 			try {
 				System.out.println("Before -- UpdateSlave lockup"+jvnCoordImpl.getLocktableser());
 				System.out.println("Before -- UpdateSlave Namming"+jvnCoordImpl.getNaming());
@@ -282,12 +282,13 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			} catch (JvnException e) {
 				e.printStackTrace();
 			}
-			
+			}
 			
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
 			System.out.println("No slave !");
+			
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		}
@@ -335,7 +336,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			JvnRemoteCoord jvnCoord = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
 			String[] list = Naming.list("rmi://localhost:1099");
 			System.out.println("list"+list.length);
-			if (list.length == 1){
+			if (list.length== 1){
+				
 				System.out.println("and heeeere !");
 			jvnCoordImpl = new JvnCoordImpl();
 			url = "rmi://localhost:1099/slave";
