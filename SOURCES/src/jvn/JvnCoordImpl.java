@@ -260,17 +260,22 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	}
 	
 
-	public void updateSlave(){
+	public  void updateSlave(){
+		
 		JvnRemoteCoord jvnCoordImpl;
+	
+		
 		try {
+			 Naming.list("rmi://localhost:1099");
+			
 			jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
 			try {
 				System.out.println("Before -- UpdateSlave lockup"+jvnCoordImpl.getLocktableser());
 				System.out.println("Before -- UpdateSlave Namming"+jvnCoordImpl.getNaming());
 				jvnCoordImpl.jvnUpdateCache(naming, locktable);
 				JvnRemoteCoord jvnCoord = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
-				System.out.println("After -- UpdateSlave lockup"+jvnCoordImpl.getLocktableser());
-				System.out.println("After -- UpdateSlave lockup"+jvnCoord.getLocktableser());
+				System.out.println("After -- UpdateSlave lockup coord"+jvnCoordImpl.getLocktableser().toString());
+				System.out.println("After -- UpdateSlave lockup slave "+jvnCoord.getLocktableser().toString());
 				
 				System.out.println("After -- UpdateSlave Namming"+jvnCoordImpl.getNaming());
 				System.out.println("After -- UpdateSlave Namming"+jvnCoord.getNaming());
@@ -282,7 +287,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			System.out.println("No slave !");
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 		}
@@ -303,29 +308,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void setTable(HashMap<String, JvnJonObj> table) {
 		this.naming = table;
 	}
-	public void updateSndCord(){
-		JvnRemoteCoord jvnCoordImpl;
-		try {
-			jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator2");
-			try {
-				jvnCoordImpl.jvnUpdateCache(naming, locktable);
-			} catch (JvnException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		} catch (NotBoundException e) {
-			e.printStackTrace();
-		}
-		
-	}
 	
-
 	public HashMap<JvnCodeOS, JvnStatus> getLocktable() {
 		return locktable;
 	}
@@ -358,6 +341,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			url = "rmi://localhost:1099/slave";
 			Naming.bind(url, jvnCoordImpl);
 			jvnCoord.addSlave((JvnRemoteCoord)jvnCoordImpl);
+			jvnCoordImpl.updateSlave();
 			System.out.println("Slave ready");
 			} else 
 				System.out.println("Slave already exists !");}
