@@ -261,33 +261,21 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	
 
 	public  void updateSlave(){
-		
 		JvnRemoteCoord jvnCoordImpl;
-	
-		
 		try {
-			 String[] list = Naming.list("rmi://localhost:1099");
-			if (list.length == 2)
-			{jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
-			try {
-				System.out.println("Before -- UpdateSlave lockup"+jvnCoordImpl.getLocktableser());
-				System.out.println("Before -- UpdateSlave Namming"+jvnCoordImpl.getNaming());
-				jvnCoordImpl.jvnUpdateCache(naming, locktable);
-				JvnRemoteCoord jvnCoord = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
-				System.out.println("After -- UpdateSlave lockup coord"+jvnCoordImpl.getLocktableser().toString());
-				System.out.println("After -- UpdateSlave lockup slave "+jvnCoord.getLocktableser().toString());
-				
-				System.out.println("After -- UpdateSlave Namming"+jvnCoordImpl.getNaming());
-				System.out.println("After -- UpdateSlave Namming"+jvnCoord.getNaming());
-			} catch (JvnException e) {
-				e.printStackTrace();
-			}
+			 String[] list = Naming.list("rmi://localhost:1099"); 
+			if (list.length == 2){ // tester s'il y a un coordinateur et un slave dans le registry
+				jvnCoordImpl = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/slave");
+				try {
+					jvnCoordImpl.jvnUpdateCache(naming, locktable); // mettre à jour les données du slave 
+				} catch (JvnException e) {
+				e.printStackTrace();}
 			}
 			
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
-			System.out.println("No slave !");
+			System.out.println("No slave launched !");
 			
 		} catch (NotBoundException e) {
 			e.printStackTrace();
@@ -325,41 +313,37 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		try {
 			LocateRegistry.createRegistry(1099);
 			jvnCoordImpl = new JvnCoordImpl();
-			url = "rmi://localhost:1099/Coordinator";
+			url = "rmi://localhost:1099/Coordinator"; 
 			Naming.rebind(url, jvnCoordImpl);
 			System.out.println("Coordinator ready");
-			System.out.println("heeeere !");
 			
 		} catch (ExportException e0) {
 				//cordinateur 2 
-		try {
-			JvnRemoteCoord jvnCoord = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
-			String[] list = Naming.list("rmi://localhost:1099");
-			System.out.println("list"+list.length);
-			if (list.length== 1){
-				
-				System.out.println("and heeeere !");
-			jvnCoordImpl = new JvnCoordImpl();
-			url = "rmi://localhost:1099/slave";
-			Naming.bind(url, jvnCoordImpl);
-			jvnCoord.addSlave((JvnRemoteCoord)jvnCoordImpl);
-			jvnCoordImpl.updateSlave();
-			System.out.println("Slave ready");
-			} else 
-				System.out.println("Slave already exists !");}
-			catch(Exception e1){
-				e1.printStackTrace();
-			}
-		
+			try { // si le coordinateur est déjà créé 
+				JvnRemoteCoord jvnCoord = (JvnRemoteCoord) Naming.lookup("rmi://localhost:1099/Coordinator");
+				String[] list = Naming.list("rmi://localhost:1099");
+				System.out.println("list"+list.length);
+					if (list.length== 1){
+						jvnCoordImpl = new JvnCoordImpl();
+						url = "rmi://localhost:1099/slave";
+						Naming.bind(url, jvnCoordImpl);
+						jvnCoord.addSlave((JvnRemoteCoord)jvnCoordImpl);
+						jvnCoordImpl.updateSlave();// mettre à jour les données du slave
+						System.out.println("Slave ready");
+				} else 
+						System.out.println("Slave already exists !");}
+				catch(Exception e1){
+					e1.printStackTrace();
+				}
+			
 			
 		} catch (RemoteException e) {
-			
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	//Mettre à jour la cache du slave
 	public void jvnUpdateCache(HashMap<String, JvnJonObj> naming,
 	HashMap<JvnCodeOS, JvnStatus> locktable) throws RemoteException, JvnException {
 		this.locktable=locktable;

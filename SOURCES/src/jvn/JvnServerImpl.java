@@ -39,12 +39,10 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 **/
 	private JvnServerImpl() throws Exception {
 		cacheObj = new HashMap<Integer, JvnObject>();
-		//System.out.println("toto 2");
 		jvnCoordImpl = (JvnRemoteCoord) Naming
-				.lookup("rmi://localhost:1099/Coordinator");
-		//if (jvnCoordImpl == null)
+				.lookup("rmi://localhost:1099/Coordinator");// init coordinator
 			jvnCoordImpl2 = (JvnRemoteCoord) Naming
-					.lookup("rmi://localhost:1099/slave");
+					.lookup("rmi://localhost:1099/slave");// init slave
 
 		System.out.println("serveur ready :" + jvnCoordImpl);
 	}
@@ -115,16 +113,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		try {
 			String[] list = Naming.list("rmi://localhost:1099");
 			System.out.println("list"+list.length);
-						
 			jvnCoordImpl.jvnRegisterObject(jon, jo, (JvnRemoteServer)js);
-			
-				
-
 		} catch (RemoteException e) {
 			try {
 				jvnCoordImpl2.jvnRegisterObject(jon, jo, (JvnRemoteServer)js);
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		} catch (MalformedURLException e) {
@@ -154,9 +147,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 
 		} catch (RemoteException e) {
 			try {
-				jvnObject = jvnCoordImpl2.jvnLookupObject(jon, (JvnRemoteServer)js);
+				jvnObject = jvnCoordImpl2.jvnLookupObject(jon, (JvnRemoteServer)js); // slave
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
+			
 				e1.printStackTrace();
 			}
 		} catch (MalformedURLException e1) {
@@ -164,16 +157,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 				e1.printStackTrace();
 			
 		}
-		/*try {
-			if (jvnCoordImpl != null)
-				jvnObject = jvnCoordImpl.jvnLookupObject(jon, (JvnRemoteServer)js);
-			else
-				jvnObject = jvnCoordImpl2.jvnLookupObject(jon, (JvnRemoteServer)js);
-
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		return jvnObject;
 	}
 
@@ -191,15 +174,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		try {
 			String[] list = Naming.list("rmi://localhost:1099");
 			System.out.println("list"+list.length);
-						
 			stateObj = jvnCoordImpl.jvnLockRead(joi, (JvnRemoteServer)js);
-				
-
 		} catch (RemoteException e) {
 			try {
 				stateObj = jvnCoordImpl2.jvnLockRead(joi, (JvnRemoteServer)js);
 			} catch (RemoteException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		} catch (MalformedURLException e) {
@@ -207,19 +186,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		
 		}
 		
-		
-	/*	
-		try {
-			if (jvnCoordImpl != null)
-				stateObj = jvnCoordImpl.jvnLockRead(joi, (JvnRemoteServer)js);
-			else
-				stateObj = jvnCoordImpl2.jvnLockRead(joi, (JvnRemoteServer)js);
-
-		} catch (RemoteException e) {
-			System.out.println("erreur au niveau du lock read serveur : "
-					+ e.getMessage());
-		}
-*/
 		return stateObj;
 	}
 
@@ -243,7 +209,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 
 		} catch (RemoteException e) {
 			try {
-				stateObj = jvnCoordImpl2.jvnLockWrite(joi, (JvnRemoteServer)js);
+				stateObj = jvnCoordImpl2.jvnLockWrite(joi, (JvnRemoteServer)js); 
 			} catch (RemoteException e1) {
 				
 				e1.printStackTrace();
@@ -258,18 +224,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 			}
 		
 		}
-		/*	try {
-
-			if (jvnCoordImpl != null)
-				stateObj = jvnCoordImpl.jvnLockWrite(joi,(JvnRemoteServer)js);
-			else
-				stateObj = jvnCoordImpl2.jvnLockWrite(joi, (JvnRemoteServer)js);
-
-		} catch (RemoteException e) {
-			System.out.println("erreur au niveau du lock write serveur : "
-					+ e.getMessage());
-		}
-        */
 		return stateObj;
 	}
 
@@ -329,33 +283,17 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		try {
 			String[] list = Naming.list("rmi://localhost:1099");
 			System.out.println("list"+list.length);
-		
-				
 
 		} catch (RemoteException e) {
-			return jvnCoordImpl2;
+			return jvnCoordImpl2; // retourner le slave s'il n'y pas de coordinateur 
 		} catch (MalformedURLException e) {
-		
-				return jvnCoordImpl2;
-			
-		
+			return jvnCoordImpl2;	
 		}
-	/*	if (jvnCoordImpl != null)
-			return jvnCoordImpl;
-		else
-
-			return jvnCoordImpl2;*/
+	
 		return jvnCoordImpl;
 	}
 
-	/*public void setJvnCoordImpl(JvnCoordImpl jvnCoordImpl) {
-		if (jvnCoordImpl != null)
-			this.jvnCoordImpl = jvnCoordImpl;
-		else
 
-			this.jvnCoordImpl2 = jvnCoordImpl;
-	}
-*/
 	public HashMap<Integer, JvnObject> getCacheObj() {
 		return cacheObj;
 	}
