@@ -252,15 +252,22 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void jvnTerminate(JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 		int joi ;
+		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
+			System.out.println("locktable : "+ entry.getKey().getJs().hashCode());
+		}
+		
 		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {		
 			if (entry.getKey().getJs().equals(js)) {
 				joi= entry.getKey().getJoi();
 				naming.remove(joi);
-				locktable.remove(entry.getKey());	// � verifier si cette instruction engendre une 
-													// suppression multiple de serveur 
+				locktable.remove(entry.getKey());	
 				}
 			}
 		updateSlave();
+		for (Map.Entry<JvnCodeOS, JvnStatus> entry : locktable.entrySet()) {
+			System.out.println("locktable : "+ entry.getKey().getJs().hashCode());
+		}
+		
 	}
 
 	public HashMap<String, JvnJonObj> getNaming(){return this.naming;}

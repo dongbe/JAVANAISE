@@ -84,6 +84,9 @@ public class IrcP {
 		Button write_button = new Button("write");
 		write_button.addActionListener(new writePListener(this));
 		frame.add(write_button);
+		Button exit_button = new Button("exit");
+		exit_button.addActionListener(new exitPListener(this));
+		frame.add(exit_button);
 		frame.setSize(545,201);
 		text.setBackground(Color.black); 
 		frame.setVisible(true);
@@ -91,7 +94,24 @@ public class IrcP {
 	}
 }
 
+ class exitPListener implements ActionListener {
+	IrcP irc;
+  
+	public exitPListener (IrcP i) {
+		irc = i;
+	}
 
+	public void actionPerformed(ActionEvent e) {
+		try {
+			JvnServerImpl.jvnGetServer().jvnTerminate();
+		} catch (JvnException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.exit(0);
+		
+	}
+}
  /**
   * Internal class to manage user events (read) on the CHAT application
   **/
@@ -101,7 +121,7 @@ public class IrcP {
 	public readPListener (IrcP i) {
 		irc = i;
 	}
-   
+	
  /**
   * Management of user events
   **/

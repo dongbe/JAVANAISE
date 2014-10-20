@@ -71,7 +71,12 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 	 * @throws JvnException
 	 **/
 	public void jvnTerminate() throws jvn.JvnException {
-		// to be completed
+		try {
+			jvnCoordImpl.jvnTerminate((JvnRemoteServer)this);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -151,6 +156,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements
 		} catch (RemoteException e) {
 			try {
 				jvnObject = jvnCoordImpl2.jvnLookupObject(jon, (JvnRemoteServer)js); // slave
+				if(jvnObject!=null){
+					cacheObj.put(jvnObject.jvnGetObjectId(), jvnObject);
+				}
 			} catch (RemoteException e1) {
 			
 				e1.printStackTrace();
