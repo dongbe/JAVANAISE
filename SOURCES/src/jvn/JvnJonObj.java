@@ -16,8 +16,9 @@ public class JvnJonObj implements Serializable {
 	public Serializable getObjet() {
 		return objet;
 	}
+
 	public void setObjet(Serializable objet) {
-		this.objet=objet;
+		this.objet = objet;
 	}
 
 	public JvnObject getJo() {
@@ -26,16 +27,19 @@ public class JvnJonObj implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return objet.hashCode()+jo.hashCode();
+		return objet.hashCode() + jo.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)return true;
-        if (obj == null)return false;
-        if (!(obj instanceof JvnJonObj)) return false;
-        JvnJonObj key = (JvnJonObj) obj;
-        return objet == key.getObjet() && jo.equals(key.getJo());
-        
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof JvnJonObj))
+			return false;
+		JvnJonObj key = (JvnJonObj) obj;
+		return objet == key.getObjet() && jo.equals(key.getJo());
+
 	}
 }

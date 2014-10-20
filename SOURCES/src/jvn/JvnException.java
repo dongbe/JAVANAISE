@@ -8,21 +8,21 @@
 package jvn;
 
 /**
- * Interface of a JVN Exception. 
+ * Interface of a JVN Exception.
  */
 
 public class JvnException extends Exception {
 	String message;
-  
+
 	public JvnException() {
 	}
-	
+
 	public JvnException(String message) {
 		this.message = message;
-	}	
-  
+	}
+
 	@Override
-	public String getMessage(){
+	public String getMessage() {
 		return message;
 	}
 }

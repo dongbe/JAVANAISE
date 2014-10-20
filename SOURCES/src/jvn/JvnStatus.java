@@ -4,13 +4,12 @@ import java.io.Serializable;
 
 import jvn.JvnCoordImpl.LockState;
 
+public class JvnStatus implements Serializable {
 
-public class JvnStatus  implements Serializable{
-	
 	private String jon;
 	private LockState state;
 	private JvnRemoteServer js;
-	
+
 	public String getJon() {
 		return jon;
 	}
@@ -27,9 +26,9 @@ public class JvnStatus  implements Serializable{
 		this.state = state;
 	}
 
-	public JvnStatus(String js, LockState st, JvnRemoteServer js2){
-		this.jon=js;
-		this.state=st;
+	public JvnStatus(String js, LockState st, JvnRemoteServer js2) {
+		this.jon = js;
+		this.state = st;
 		this.setJs(js2);
 	}
 
@@ -40,8 +39,5 @@ public class JvnStatus  implements Serializable{
 	public void setJs(JvnRemoteServer js) {
 		this.js = js;
 	}
-
-
-	
 
 }

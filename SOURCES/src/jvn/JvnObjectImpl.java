@@ -65,7 +65,8 @@ public class JvnObjectImpl implements JvnObject, Serializable {
 		boolean test = false;
 		synchronized (this) {
 			if (mode.equals(LockState.WC)) {
-				System.out.println("objet write reuse par le client : " + objet);
+				System.out
+						.println("objet write reuse par le client : " + objet);
 				mode = LockState.W;
 			} else {
 				test = true;
@@ -93,7 +94,7 @@ public class JvnObjectImpl implements JvnObject, Serializable {
 			notifyAll();
 			break;
 		}
-		System.out.println(" unlock"+mode);
+		System.out.println(" unlock" + mode);
 		JvnServerImpl.jvnGetServer().getCacheObj().put(id, this);
 	}
 
